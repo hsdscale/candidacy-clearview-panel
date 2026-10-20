@@ -108,12 +108,12 @@ const optCls = (on: boolean) =>
 const hourCls = (on: boolean) =>
   `flex w-full items-center gap-3 rounded-xl border px-4 py-4 text-left text-sm font-semibold transition sm:px-5 sm:text-base ${
     on
-      ? "border-navy bg-navy text-navy-foreground shadow-lg ring-2 ring-navy/25"
-      : "border-navy/25 bg-navy/[0.07] text-navy hover:border-navy/60 hover:bg-navy/[0.12]"
+      ? "border-navy bg-navy text-navy-foreground shadow-lg ring-2 ring-azure/40"
+      : "border-azure/45 bg-azure-soft text-navy hover:border-azure hover:bg-azure/15"
   }`;
 const hourValCls = (on: boolean) =>
   `shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold sm:text-sm ${
-    on ? "bg-navy-foreground/20 text-navy-foreground" : "bg-navy/10 text-navy"
+    on ? "bg-navy-foreground/20 text-navy-foreground" : "bg-azure/15 text-navy"
   }`;
 const chipCls = (on: boolean) =>
   `inline-flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
