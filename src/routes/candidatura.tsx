@@ -116,7 +116,7 @@ function Candidatura() {
   const next = () => {
     setTried(true);
     if ((stepKeys[step] ?? []).some((k) => errs[k])) {
-      setTimeout(() => document.querySelector('[role="alert"]')?.closest("fieldset")?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
+      setTimeout(() => { const a = document.querySelector('[role="alert"]'); (a?.closest("fieldset") ?? a?.parentElement)?.scrollIntoView({ behavior: "smooth", block: "center" }); }, 0);
       return;
     }
     go(step + 1);
