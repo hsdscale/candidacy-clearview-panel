@@ -35,12 +35,20 @@ const EQUIP = [
   "Espaço de trabalho tranquilo",
 ];
 
-function Radio({ on }: { on: boolean }) {
+function Radio({ on, inverted }: { on: boolean; inverted?: boolean }) {
   return (
     <span
-      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${on ? "border-navy" : "border-border"}`}
+      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+        on
+          ? inverted
+            ? "border-navy-foreground"
+            : "border-navy"
+          : inverted
+            ? "border-navy-foreground/50"
+            : "border-border"
+      }`}
     >
-      {on && <span className="h-2.5 w-2.5 rounded-full bg-navy" />}
+      {on && <span className={`h-2.5 w-2.5 rounded-full ${inverted ? "bg-navy-foreground" : "bg-navy"}`} />}
     </span>
   );
 }
@@ -96,6 +104,16 @@ function FieldErr({ msg }: { msg: string }) {
 const optCls = (on: boolean) =>
   `flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition sm:px-5 sm:text-base ${
     on ? "border-navy bg-navy/5 ring-1 ring-navy" : "border-border bg-cream hover:border-navy/40"
+  }`;
+const hourCls = (on: boolean) =>
+  `flex w-full items-center gap-3 rounded-xl border px-4 py-4 text-left text-sm font-semibold transition sm:px-5 sm:text-base ${
+    on
+      ? "border-navy bg-navy text-navy-foreground shadow-lg ring-2 ring-navy/25"
+      : "border-navy/25 bg-navy/[0.07] text-navy hover:border-navy/60 hover:bg-navy/[0.12]"
+  }`;
+const hourValCls = (on: boolean) =>
+  `shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold sm:text-sm ${
+    on ? "bg-navy-foreground/20 text-navy-foreground" : "bg-navy/10 text-navy"
   }`;
 const chipCls = (on: boolean) =>
   `inline-flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
@@ -255,12 +273,12 @@ function Candidatura() {
                       type="button"
                       key={h}
                       onClick={() => setHours(h)}
-                      className={optCls(hours === h)}
+                      className={hourCls(hours === h)}
                       aria-pressed={hours === h}
                     >
-                      <Radio on={hours === h} />
+                      <Radio on={hours === h} inverted={hours === h} />
                       <span className="flex-1">{h}</span>
-                      <span className="text-right text-xs font-semibold text-navy/80 sm:text-sm">{v}</span>
+                      <span className={hourValCls(hours === h)}>{v}</span>
                     </button>
                   ))}
                 </div>
