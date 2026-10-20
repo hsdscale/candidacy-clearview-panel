@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { notifyNewApplication } from './application-notification.functions';
 
 export function slugName(name: string) {
   return (
@@ -42,4 +43,10 @@ export async function submitApplication(a: ApplicationInput) {
     cv_path, extra_path, morada_path,
   });
   if (error) throw error;
+  try {
+    await notifyNewApplication({ data: { applicationId: id } });
+  } catch {
+    // The saved candidature must not be submitted twice after an email failure.
+    console.warn('A candidatura foi guardada, mas o aviso por email não ficou confirmado.');
+  }
 }
