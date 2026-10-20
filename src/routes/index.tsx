@@ -210,7 +210,7 @@ function Index() {
         <div className="mt-5 flex justify-center gap-3 text-xs opacity-70">
           <a href="#" className="underline">Aviso de privacidade</a>·<a href="#" className="underline">Definições de cookies</a>
         </div>
-        <p className="mt-5 text-xs opacity-50">© 2026 Amanto Careers. Todos os direitos reservados.</p>
+        <p className="mt-5 text-xs opacity-50">© 2026 Alvanto Careers. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
