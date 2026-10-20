@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
+import { submitApplication } from "@/lib/submit-application";
 
 export const Route = createFileRoute("/candidatura")({
   head: () => ({
@@ -90,6 +91,8 @@ function Candidatura() {
   const [morada, setMorada] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [tried, setTried] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendErr, setSendErr] = useState<string | null>(null);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
@@ -123,15 +126,26 @@ function Candidatura() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const next = () => {
+  const next = async () => {
     setTried(true);
     if ((stepKeys[step] ?? []).some((k) => errs[k])) {
       setTimeout(() => { const a = document.querySelector('[role="alert"]'); (a?.closest("fieldset") ?? a?.parentElement)?.scrollIntoView({ behavior: "smooth", block: "center" }); }, 0);
       return;
     }
     if (step >= TOTAL) {
-      setSubmitted(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (sending || !cv || !extra || !morada) return;
+      setSending(true);
+      setSendErr(null);
+      try {
+        await submitApplication({ name, email, phone, hours, days, start, equip, exp, pt, strengths, why, level, cv, extra, morada });
+        setSubmitted(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {
+        console.error(e);
+        setSendErr("Não foi possível enviar a candidatura. Verifique a ligação e tente novamente.");
+      } finally {
+        setSending(false);
+      }
       return;
     }
     go(step + 1);
@@ -383,12 +397,13 @@ function Candidatura() {
               <p>Os seus documentos são guardados de forma privada e apenas a equipa de recrutamento autorizada pode consultá-los.</p>
             </div>
 
+            {sendErr && <FieldErr msg={sendErr} />}
             <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
-              <button type="button" onClick={() => go(4)} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
+              <button type="button" onClick={() => go(4)} disabled={sending} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
                 <ArrowLeft className="h-4 w-4" /> Voltar
               </button>
-              <button type="button" onClick={next} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto">
-                Enviar candidatura <Check className="h-4 w-4" />
+              <button type="button" onClick={next} disabled={sending} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 disabled:opacity-60 sm:w-auto">
+                {sending ? "A enviar..." : <>Enviar candidatura <Check className="h-4 w-4" /></>}
               </button>
             </div>
           </>
