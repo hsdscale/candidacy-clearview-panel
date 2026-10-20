@@ -15,6 +15,13 @@
       "when": 1792520523210,
       "tag": "0001_tag_comments",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792522118247,
+      "tag": "0002_application_numbering",
+      "breakpoints": true
     }
   ]
 }
