@@ -33,19 +33,25 @@ function Radio({ on }: { on: boolean }) {
   );
 }
 
-function Group({ title, error, children }: { title: string; error?: boolean; children: React.ReactNode }) {
+function Group({ title, error, msg, children }: { title: string; error?: boolean; msg?: string; children: React.ReactNode }) {
   return (
     <fieldset className={`rounded-xl border bg-background p-4 transition sm:p-6 ${error ? "border-destructive" : "border-border"}`}>
       <legend className="px-2 text-sm font-semibold text-navy sm:text-base">{title}</legend>
       {children}
       {error && (
         <p role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" /> Por favor, selecione uma opção.
+          <AlertCircle className="h-4 w-4 shrink-0" /> {msg ?? "Por favor, selecione uma opção."}
         </p>
       )}
     </fieldset>
   );
 }
+
+const EXP = ["Sem experiência direta", "Alguma experiência relevante", "Experiência sólida na área"];
+const PT = ["Língua materna", "Fluente", "Bom nível de escrita", "Básico"];
+const STRENGTHS = ["Atenção ao detalhe", "Comunicação", "Organização", "Conhecimentos de informática", "Resolução de problemas", "Gestão do tempo"];
+const MIN_TEXT = 20;
+const MAX_TEXT = 1500;
 
 const optCls = (on: boolean) =>
   `flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition sm:px-5 sm:text-base ${
@@ -62,22 +68,38 @@ function Candidatura() {
   const [days, setDays] = useState<string[]>([]);
   const [start, setStart] = useState<string | null>(null);
   const [equip, setEquip] = useState<string[]>([]);
+  const [exp, setExp] = useState<string | null>(null);
+  const [pt, setPt] = useState<string | null>(null);
+  const [strengths, setStrengths] = useState<string[]>([]);
+  const [why, setWhy] = useState("");
   const [tried, setTried] = useState(false);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
-  const errs = { hours: !hours, days: days.length === 0, start: !start, equip: equip.length === 0 };
+  const errs = {
+    hours: !hours, days: days.length === 0, start: !start, equip: equip.length === 0,
+    exp: !exp, pt: !pt, strengths: strengths.length === 0, why: why.trim().length < MIN_TEXT,
+  };
+  const stepKeys: Record<number, (keyof typeof errs)[]> = {
+    1: ["hours", "days", "start", "equip"],
+    2: ["exp", "pt", "strengths", "why"],
+  };
   const show = (k: keyof typeof errs) => tried && errs[k];
+
+  const go = (s: number) => {
+    setTried(false);
+    setStep(s);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const next = () => {
     setTried(true);
-    if (Object.values(errs).some(Boolean)) {
+    if ((stepKeys[step] ?? []).some((k) => errs[k])) {
       setTimeout(() => document.querySelector('[role="alert"]')?.closest("fieldset")?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
       return;
     }
-    setStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    go(step + 1);
   };
 
   return (
