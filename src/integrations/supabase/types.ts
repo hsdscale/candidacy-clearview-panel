@@ -70,6 +70,7 @@ export type Database = {
           pt_level: string | null
           start_when: string | null
           strengths: string[]
+          verified: boolean
           why: string | null
         }
         Insert: {
@@ -91,6 +92,7 @@ export type Database = {
           pt_level?: string | null
           start_when?: string | null
           strengths?: string[]
+          verified?: boolean
           why?: string | null
         }
         Update: {
@@ -112,6 +114,7 @@ export type Database = {
           pt_level?: string | null
           start_when?: string | null
           strengths?: string[]
+          verified?: boolean
           why?: string | null
         }
         Relationships: []

@@ -22,7 +22,8 @@ function NewApplicationEmail({ candidateName, applicationNumber }: Props) {
 
 export const template = {
   component: NewApplicationEmail,
-  subject: 'Novo cadastro no Alvanto',
+  subject: (d: Record<string, any>) =>
+    d?.['applicationNumber'] != null ? `Novo cadastro no Alvanto #${d['applicationNumber']}` : 'Novo cadastro no Alvanto',
   to: 'cdrnegociosdigitais@gmail.com',
   displayName: 'Nova candidatura — Alvanto',
   previewData: { candidateName: 'Maria Silva', applicationNumber: 1 },
