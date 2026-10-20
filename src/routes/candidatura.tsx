@@ -97,6 +97,8 @@ const optCls = (on: boolean) =>
   `flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition sm:px-5 sm:text-base ${
     on ? "border-navy bg-navy/5 ring-1 ring-navy" : "border-border bg-cream hover:border-navy/40"
   }`;
+const hourValCls =
+  "shrink-0 whitespace-nowrap rounded-full bg-azure px-3 py-1.5 text-xs font-bold text-navy-foreground sm:text-sm";
 const chipCls = (on: boolean) =>
   `inline-flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
     on ? "border-navy bg-navy text-navy-foreground" : "border-border bg-cream text-navy hover:border-navy/40"
@@ -260,7 +262,7 @@ function Candidatura() {
                     >
                       <Radio on={hours === h} />
                       <span className="flex-1">{h}</span>
-                      <span className="text-right text-xs font-semibold text-navy/80 sm:text-sm">{v}</span>
+                      <span className={hourValCls}>{v}</span>
                     </button>
                   ))}
                 </div>
