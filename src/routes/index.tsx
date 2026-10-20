@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight, MapPin, Home, Wallet, Clock, CircleDollarSign, GraduationCap,
   CheckCircle2, Check, Laptop, ShieldCheck, MousePointerClick, FileText, UserCheck, Headphones, Sparkles,
@@ -16,16 +16,14 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const CTA = "#requisitos";
-
 function Btn({ children, variant = "navy" }: { children: React.ReactNode; variant?: "navy" | "amber" }) {
   const cls = variant === "navy"
     ? "bg-navy text-navy-foreground hover:opacity-90"
     : "bg-amber text-amber-foreground hover:brightness-105";
   return (
-    <a href={CTA} className={`inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold transition ${cls}`}>
+    <Link to="/candidatura" className={`inline-flex shrink-0 items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold transition ${cls}`}>
       {children} <ArrowRight className="h-4 w-4" />
-    </a>
+    </Link>
   );
 }
 
