@@ -52,6 +52,14 @@ const PT = ["Língua materna", "Fluente", "Bom nível de escrita", "Básico"];
 const STRENGTHS = ["Atenção ao detalhe", "Comunicação", "Organização", "Conhecimentos de informática", "Resolução de problemas", "Gestão do tempo"];
 const MIN_TEXT = 20;
 const MAX_TEXT = 1500;
+const inputCls = "mt-2 w-full rounded-lg border bg-cream px-4 py-3 text-sm outline-none transition focus:border-navy focus:ring-1 focus:ring-navy sm:text-base";
+function FieldErr({ msg }: { msg: string }) {
+  return (
+    <p role="alert" className="mt-2 flex items-center gap-1.5 text-sm text-destructive">
+      <AlertCircle className="h-4 w-4 shrink-0" /> {msg}
+    </p>
+  );
+}
 
 const optCls = (on: boolean) =>
   `flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition sm:px-5 sm:text-base ${
@@ -72,6 +80,10 @@ function Candidatura() {
   const [pt, setPt] = useState<string | null>(null);
   const [strengths, setStrengths] = useState<string[]>([]);
   const [why, setWhy] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [agree, setAgree] = useState(false);
   const [tried, setTried] = useState(false);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
@@ -80,12 +92,20 @@ function Candidatura() {
   const errs = {
     hours: !hours, days: days.length === 0, start: !start, equip: equip.length === 0,
     exp: !exp, pt: !pt, strengths: strengths.length === 0, why: why.trim().length < MIN_TEXT,
+    name: name.trim().split(/\s+/).filter(Boolean).length < 2,
+    email: !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim()),
+    agree: !agree,
   };
   const stepKeys: Record<number, (keyof typeof errs)[]> = {
     1: ["hours", "days", "start", "equip"],
     2: ["exp", "pt", "strengths", "why"],
+    3: ["name", "email", "agree"],
   };
   const show = (k: keyof typeof errs) => tried && errs[k];
+  const level =
+    exp === EXP[2] ? "Nível avançado · 60 – 65 €/hora"
+    : exp === EXP[1] ? "Nível intermédio · 50 – 55 €/hora"
+    : "Nível inicial · 40 – 45 €/hora";
 
   const go = (s: number) => {
     setTried(false);
@@ -96,7 +116,7 @@ function Candidatura() {
   const next = () => {
     setTried(true);
     if ((stepKeys[step] ?? []).some((k) => errs[k])) {
-      setTimeout(() => document.querySelector('[role="alert"]')?.closest("fieldset")?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
+      setTimeout(() => { const a = document.querySelector('[role="alert"]'); (a?.closest("fieldset") ?? a?.parentElement)?.scrollIntoView({ behavior: "smooth", block: "center" }); }, 0);
       return;
     }
     go(step + 1);
@@ -241,6 +261,54 @@ function Candidatura() {
 
             <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
               <button type="button" onClick={() => go(1)} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
+                <ArrowLeft className="h-4 w-4" /> Voltar
+              </button>
+              <button type="button" onClick={next} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto">
+                Continuar <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </>
+        ) : step === 3 ? (
+          <>
+            <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">Assistente de processamento de encomendas</p>
+            <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">Os seus dados</h1>
+            <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+              As suas respostas ajudam-nos a identificar o nível de remuneração adequado ao seu perfil.
+            </p>
+
+            <div className="mt-10 space-y-6 rounded-xl border border-border bg-background p-4 sm:p-6">
+              <div>
+                <label htmlFor="name" className="text-sm font-semibold text-navy">Nome completo</label>
+                <input id="name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name"
+                  className={`${inputCls} ${show("name") ? "border-destructive" : "border-border"}`} />
+                {show("name") && <FieldErr msg="Por favor, indique o seu nome completo." />}
+              </div>
+              <div>
+                <label htmlFor="email" className="text-sm font-semibold text-navy">Endereço de email</label>
+                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email"
+                  className={`${inputCls} ${show("email") ? "border-destructive" : "border-border"}`} />
+                {show("email") && <FieldErr msg="Por favor, indique um endereço de email válido." />}
+              </div>
+              <div>
+                <label htmlFor="phone" className="text-sm font-semibold text-navy">Número de telemóvel (opcional)</label>
+                <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" placeholder="+351 9XX XXX XXX"
+                  className={`${inputCls} border-border`} />
+              </div>
+              <div>
+                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border bg-background px-4 py-4 text-sm sm:text-base ${show("agree") ? "border-destructive" : "border-border"}`}>
+                  <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-navy" />
+                  <span>Confirmo que tenho pelo menos 18 anos e que as informações acima são verdadeiras.</span>
+                </label>
+                {show("agree") && <FieldErr msg="Por favor, confirme para continuar." />}
+              </div>
+              <div className="rounded-lg bg-navy/5 px-5 py-5">
+                <p className="text-sm font-medium text-navy/80">Nível estimado para o seu perfil</p>
+                <p className="mt-2 font-display text-xl font-extrabold text-navy sm:text-2xl md:text-3xl">{level}</p>
+              </div>
+            </div>
+
+            <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
+              <button type="button" onClick={() => go(2)} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
                 <ArrowLeft className="h-4 w-4" /> Voltar
               </button>
               <button type="button" onClick={next} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto">
