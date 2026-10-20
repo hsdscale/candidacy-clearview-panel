@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Tag as TagIcon, Plus, X, Download, Trash2, FileText, Check } from "lucide-react";
+import { Search, LogOut, Tag as TagIcon, Plus, X, Download, Trash2, FileText, Check, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -32,7 +32,7 @@ type App = {
   hours: string | null; days: string[]; start_when: string | null; equipment: string[];
   experience: string | null; pt_level: string | null; strengths: string[]; why: string | null; level: string | null;
   cv_path: string | null; extra_path: string | null; morada_path: string | null; notes: string | null;
-  application_tags: { tag_id: string }[];
+  application_tags: { tag_id: string; comment: string | null }[];
 };
 
 function Chip({ tag, on = true, onClick, small }: { tag: Tag; on?: boolean; onClick?: () => void; small?: boolean }) {
@@ -53,6 +53,7 @@ function Admin() {
   const [filter, setFilter] = useState<string[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [manage, setManage] = useState(false);
+  const [view, setView] = useState<"todas" | "novas" | "verificadas">("novas");
 
   const role = useQuery({
     queryKey: ["is-admin"],
