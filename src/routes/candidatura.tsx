@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle, Mail } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
 import { submitApplication } from "@/lib/submit-application";
 
