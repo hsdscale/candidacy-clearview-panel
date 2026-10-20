@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Candidate submissions insert directly from the browser (anon insert-only RLS) and upload files to the private `candidaturas` bucket under `<name-slug>_<id8>/`; only `has_role(admin)` can read. Why: public form without login, private review.
+- Admin panel lives at `src/routes/_authenticated/admin.tsx`; first account ever created becomes admin via trigger on auth.users. Why: bootstrap owner without manual SQL.

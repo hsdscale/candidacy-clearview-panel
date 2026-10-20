@@ -24,7 +24,7 @@ export const TAG_COLORS: Record<string, string> = {
   red: "oklch(0.6 0.2 25)", purple: "oklch(0.58 0.18 300)", pink: "oklch(0.68 0.17 350)",
   teal: "oklch(0.62 0.1 195)", navy: "oklch(0.35 0.08 258)",
 };
-const color = (c: string) => TAG_COLORS[c] ?? TAG_COLORS.navy;
+const color = (c: string) => TAG_COLORS[c] ?? "oklch(0.35 0.08 258)";
 
 type Tag = { id: string; name: string; color: string };
 type App = {
