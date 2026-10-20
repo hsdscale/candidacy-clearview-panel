@@ -28,7 +28,7 @@ const color = (c: string) => TAG_COLORS[c] ?? "oklch(0.35 0.08 258)";
 
 type Tag = { id: string; name: string; color: string };
 type App = {
-  id: string; created_at: string; name: string; email: string; phone: string | null;
+  id: string; application_number: number; created_at: string; name: string; email: string; phone: string | null;
   hours: string | null; days: string[]; start_when: string | null; equipment: string[];
   experience: string | null; pt_level: string | null; strengths: string[]; why: string | null; level: string | null;
   cv_path: string | null; extra_path: string | null; morada_path: string | null; notes: string | null;
@@ -93,7 +93,7 @@ function Admin() {
     const s = q.trim().toLowerCase();
     return (apps.data ?? []).filter((a) =>
       (view === "todas" || (view === "verificadas" ? isVer(a) : !isVer(a))) &&
-      (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s)) &&
+      (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')) &&
       filter.every((f) => a.application_tags.some((t) => t.tag_id === f)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apps.data, q, filter, view, verifiedId]);
@@ -135,7 +135,7 @@ function Admin() {
           </h1>
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar por nome ou email"
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar por número, nome ou email"
               className="w-full rounded-lg border border-border bg-background py-2.5 pl-9 pr-3 text-sm outline-none focus:border-navy" />
           </div>
         </div>
@@ -169,6 +169,7 @@ function Admin() {
             <button key={a.id} onClick={() => setOpenId(a.id)}
               className="flex w-full flex-col gap-2 rounded-xl border border-border bg-background p-4 text-left transition hover:border-navy/40 sm:flex-row sm:items-center sm:gap-4">
               <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-muted-foreground">Candidatura n.º {a.application_number}</p>
                 <p className="truncate font-semibold text-navy">{a.name}</p>
                 <p className="truncate text-sm text-muted-foreground">{a.email}{a.phone ? ` · ${a.phone}` : ""}</p>
               </div>
@@ -254,6 +255,7 @@ function Detail({ app, tags, onToggle, onDeleted }: { app: App; tags: Tag[]; onT
   return (
     <>
       <SheetHeader>
+        <p className="text-sm font-semibold text-navy">Candidatura n.º {app.application_number}</p>
         <SheetTitle className="font-display text-2xl text-navy">{app.name}</SheetTitle>
         <p className="text-sm text-muted-foreground">Recebida a {new Date(app.created_at).toLocaleString("pt-PT")}</p>
       </SheetHeader>

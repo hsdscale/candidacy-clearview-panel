@@ -19,11 +19,11 @@ describe('New candidature notifications', () => {
     expect(send).not.toHaveBeenCalled();
   });
   it('sends the saved name and deduplicates using the event ID', async () => {
-    lookup.mockResolvedValue({ data: { id: 'event-123', name: 'Maria Silva' }, error: null });
+    lookup.mockResolvedValue({ data: { id: 'event-123', name: 'Maria Silva', application_number: 1 }, error: null });
     send.mockResolvedValue({ sent: true });
     expect(await sendApplicationNotification('event-123')).toEqual({ notified: true });
     expect(send).toHaveBeenCalledWith('new-application', '', {
-      templateData: { candidateName: 'Maria Silva' }, idempotencyKey: 'new-application-event-123',
+      templateData: { candidateName: 'Maria Silva', applicationNumber: 1 }, idempotencyKey: 'new-application-event-123',
     });
   });
   it('respects recipient suppression without retrying', async () => {
