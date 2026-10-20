@@ -70,7 +70,7 @@ function Admin() {
     const s = q.trim().toLowerCase();
     return (apps.data ?? []).filter((a) =>
       (view === "todas" || (view === "verificadas" ? isVer(a) : !isVer(a))) &&
-      (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, ''))));
+      (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')));
   }, [apps.data, q, view]);
   const open = apps.data?.find((a) => a.id === openId) ?? null;
 
