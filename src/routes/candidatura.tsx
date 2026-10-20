@@ -325,9 +325,9 @@ function Candidatura() {
         ) : step === 4 ? (
           <>
             <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">Assistente de processamento de encomendas</p>
-            <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">Envio de documentos</h1>
+            <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">Verificação de currículo</h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              Envie ficheiros nítidos e legíveis para a nossa equipa de recrutamento.
+              Envie documentos nítidos e legíveis para a nossa equipa de verificação.
             </p>
 
             <div className="mt-10 grid gap-5 md:grid-cols-2">
