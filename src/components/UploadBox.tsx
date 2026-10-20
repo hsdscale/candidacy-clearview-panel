@@ -10,9 +10,10 @@ type Props = {
   file: File | null;
   onChange: (f: File | null) => void;
   error?: boolean;
+  errorMsg?: string;
 };
 
-export function UploadBox({ title, file, onChange, error }: Props) {
+export function UploadBox({ title, file, onChange, error, errorMsg }: Props) {
   const ref = useRef<HTMLInputElement>(null);
   const [bad, setBad] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
@@ -25,7 +26,7 @@ export function UploadBox({ title, file, onChange, error }: Props) {
     onChange(f);
   };
 
-  const msg = bad ?? (error && !file ? "Por favor, envie um ficheiro." : null);
+  const msg = bad ?? (error && !file ? (errorMsg ?? "Por favor, envie um ficheiro.") : null);
   const size = file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "";
 
   return (
