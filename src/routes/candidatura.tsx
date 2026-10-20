@@ -33,19 +33,25 @@ function Radio({ on }: { on: boolean }) {
   );
 }
 
-function Group({ title, error, children }: { title: string; error?: boolean; children: React.ReactNode }) {
+function Group({ title, error, msg, children }: { title: string; error?: boolean; msg?: string; children: React.ReactNode }) {
   return (
     <fieldset className={`rounded-xl border bg-background p-4 transition sm:p-6 ${error ? "border-destructive" : "border-border"}`}>
       <legend className="px-2 text-sm font-semibold text-navy sm:text-base">{title}</legend>
       {children}
       {error && (
         <p role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" /> Por favor, selecione uma opção.
+          <AlertCircle className="h-4 w-4 shrink-0" /> {msg ?? "Por favor, selecione uma opção."}
         </p>
       )}
     </fieldset>
   );
 }
+
+const EXP = ["Sem experiência direta", "Alguma experiência relevante", "Experiência sólida na área"];
+const PT = ["Língua materna", "Fluente", "Bom nível de escrita", "Básico"];
+const STRENGTHS = ["Atenção ao detalhe", "Comunicação", "Organização", "Conhecimentos de informática", "Resolução de problemas", "Gestão do tempo"];
+const MIN_TEXT = 20;
+const MAX_TEXT = 1500;
 
 const optCls = (on: boolean) =>
   `flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition sm:px-5 sm:text-base ${
@@ -62,22 +68,38 @@ function Candidatura() {
   const [days, setDays] = useState<string[]>([]);
   const [start, setStart] = useState<string | null>(null);
   const [equip, setEquip] = useState<string[]>([]);
+  const [exp, setExp] = useState<string | null>(null);
+  const [pt, setPt] = useState<string | null>(null);
+  const [strengths, setStrengths] = useState<string[]>([]);
+  const [why, setWhy] = useState("");
   const [tried, setTried] = useState(false);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
-  const errs = { hours: !hours, days: days.length === 0, start: !start, equip: equip.length === 0 };
+  const errs = {
+    hours: !hours, days: days.length === 0, start: !start, equip: equip.length === 0,
+    exp: !exp, pt: !pt, strengths: strengths.length === 0, why: why.trim().length < MIN_TEXT,
+  };
+  const stepKeys: Record<number, (keyof typeof errs)[]> = {
+    1: ["hours", "days", "start", "equip"],
+    2: ["exp", "pt", "strengths", "why"],
+  };
   const show = (k: keyof typeof errs) => tried && errs[k];
+
+  const go = (s: number) => {
+    setTried(false);
+    setStep(s);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const next = () => {
     setTried(true);
-    if (Object.values(errs).some(Boolean)) {
+    if ((stepKeys[step] ?? []).some((k) => errs[k])) {
       setTimeout(() => document.querySelector('[role="alert"]')?.closest("fieldset")?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
       return;
     }
-    setStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    go(step + 1);
   };
 
   return (
@@ -158,11 +180,79 @@ function Candidatura() {
               </button>
             </div>
           </>
+        ) : step === 2 ? (
+          <>
+            <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">Assistente de processamento de encomendas</p>
+            <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">A sua experiência</h1>
+            <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+              As suas respostas ajudam-nos a identificar o nível de remuneração adequado ao seu perfil.
+            </p>
+
+            <div className="mt-10 space-y-8">
+              <Group title="Qual é o seu nível de experiência?" error={show("exp")}>
+                <div className="space-y-3">
+                  {EXP.map((e) => (
+                    <button type="button" key={e} onClick={() => setExp(e)} className={optCls(exp === e)} aria-pressed={exp === e}>
+                      <Radio on={exp === e} />{e}
+                    </button>
+                  ))}
+                </div>
+              </Group>
+
+              <Group title="Como avalia o seu português escrito?" error={show("pt")}>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {PT.map((p) => (
+                    <button type="button" key={p} onClick={() => setPt(p)} className={optCls(pt === p)} aria-pressed={pt === p}>
+                      <Radio on={pt === p} />{p}
+                    </button>
+                  ))}
+                </div>
+              </Group>
+
+              <Group title="Quais são os seus pontos fortes?" error={show("strengths")}>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  {STRENGTHS.map((s) => (
+                    <button type="button" key={s} onClick={() => toggle(strengths, setStrengths, s)} className={chipCls(strengths.includes(s))} aria-pressed={strengths.includes(s)}>
+                      {strengths.includes(s) && <Check className="h-3.5 w-3.5" />}{s}
+                    </button>
+                  ))}
+                </div>
+              </Group>
+
+              <Group
+                title="Porque considera ser a pessoa certa para esta função?"
+                error={show("why")}
+                msg={`Por favor, escreva pelo menos ${MIN_TEXT} caracteres.`}
+              >
+                <textarea
+                  value={why}
+                  onChange={(e) => setWhy(e.target.value.slice(0, MAX_TEXT))}
+                  maxLength={MAX_TEXT}
+                  rows={6}
+                  placeholder="Explique porque considera ter o perfil adequado para esta função..."
+                  className="w-full resize-y rounded-lg border border-border bg-cream px-4 py-3 text-sm outline-none transition focus:border-navy focus:ring-1 focus:ring-navy sm:text-base"
+                />
+                <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                  <span>Mínimo de {MIN_TEXT} caracteres</span>
+                  <span>{why.length}/{MAX_TEXT}</span>
+                </div>
+              </Group>
+            </div>
+
+            <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
+              <button type="button" onClick={() => go(1)} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
+                <ArrowLeft className="h-4 w-4" /> Voltar
+              </button>
+              <button type="button" onClick={next} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto">
+                Continuar <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </>
         ) : (
           <div className="mt-12 rounded-xl border border-border bg-background p-8 text-center">
             <h1 className="font-display text-2xl font-bold text-navy">Etapa {step}</h1>
             <p className="mt-2 text-sm text-muted-foreground">Esta etapa será adicionada em breve.</p>
-            <button type="button" onClick={() => setStep(1)} className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-navy hover:underline">
+            <button type="button" onClick={() => go(step - 1)} className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-navy hover:underline">
               <ArrowLeft className="h-4 w-4" /> Voltar
             </button>
           </div>
