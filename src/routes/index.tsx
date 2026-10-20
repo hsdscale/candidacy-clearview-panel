@@ -58,8 +58,8 @@ function Index() {
   return (
     <div className="min-h-screen bg-cream font-sans text-foreground">
       <header className="border-b border-border bg-cream">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-3 px-4 py-4 sm:justify-between sm:px-6">
-          <img src={logo} alt="Alvanto" className="h-[24px] w-auto" width={300} height={92} />
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:h-[72px] sm:px-6">
+          <img src={logo} alt="Alvanto" className="h-[24px] w-auto min-w-0 shrink" width={300} height={92} />
           <Link
             to="/candidatura"
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-navy px-4 py-2 text-xs font-semibold text-navy-foreground transition hover:opacity-90 sm:px-5 sm:py-2.5 sm:text-sm"
