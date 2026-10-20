@@ -15,4 +15,5 @@
 - [x] Destaque azul no valor mensal das opções de horas (etapa 1)
 - [ ] Confirmar valores reais por nível (40–45 / 50–55 / 60–65 €/h)
 - [x] Logo real da Alvanto (logo.webp no topo, logo2.webp no rodapé)
-- [x] Logo com 34 px de altura no topo e no rodapé (rodapé centrado); ícone do separador com a marca Alvanto
+- [x] Logo com 24 px de altura no topo e no rodapé (rodapé centrado); ícone do separador com a marca Alvanto
+- [ ] Os ficheiros src/assets/logo.webp e logo2.webp voltaram a ser a logo da Amazon — precisa da marca Alvanto para publicar
