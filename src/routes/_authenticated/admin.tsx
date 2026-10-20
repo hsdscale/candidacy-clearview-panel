@@ -1,16 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Tag as TagIcon, Plus, X, Download, Trash2, FileText, Check, Pencil } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
       { title: "Painel de candidaturas — Alvanto" },
-      { name: "description", content: "Painel privado para gerir candidaturas e etiquetas." },
+      { name: "description", content: "Painel privado para gerir candidaturas." },
       { property: "og:title", content: "Painel de candidaturas — Alvanto" },
       { property: "og:description", content: "Painel privado de candidaturas." },
       { name: "robots", content: "noindex" },
@@ -19,30 +18,19 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
 });
 
-export const TAG_COLORS: Record<string, string> = {
-  blue: "oklch(0.6 0.15 250)", green: "oklch(0.62 0.15 150)", amber: "oklch(0.75 0.15 75)",
-  red: "oklch(0.6 0.2 25)", purple: "oklch(0.58 0.18 300)", pink: "oklch(0.68 0.17 350)",
-  teal: "oklch(0.62 0.1 195)", navy: "oklch(0.35 0.08 258)",
-};
-const color = (c: string) => TAG_COLORS[c] ?? "oklch(0.35 0.08 258)";
-
-type Tag = { id: string; name: string; color: string };
 type App = {
   id: string; application_number: number; created_at: string; name: string; email: string; phone: string | null;
   hours: string | null; days: string[]; start_when: string | null; equipment: string[];
   experience: string | null; pt_level: string | null; strengths: string[]; why: string | null; level: string | null;
   cv_path: string | null; extra_path: string | null; morada_path: string | null; notes: string | null;
-  application_tags: { tag_id: string; comment: string | null }[];
+  verified: boolean;
 };
 
-function Chip({ tag, on = true, onClick, small }: { tag: Tag; on?: boolean; onClick?: () => void; small?: boolean }) {
-  const c = color(tag.color);
-  return (
-    <button type="button" onClick={onClick} disabled={!onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full border font-medium transition ${small ? "px-2 py-0.5 text-xs" : "px-3 py-1.5 text-sm"} ${onClick ? "cursor-pointer" : "cursor-default"}`}
-      style={on ? { background: c, borderColor: c, color: "oklch(0.99 0 0)" } : { borderColor: c, color: c }}>
-      {on && onClick && <Check className="h-3 w-3" />}{tag.name}
-    </button>
+function StatusBadge({ verified }: { verified: boolean }) {
+  return verified ? (
+    <span className="inline-flex items-center gap-1 rounded-full bg-navy px-2.5 py-0.5 text-xs font-semibold text-navy-foreground"><Check className="h-3 w-3" />Verificado</span>
+  ) : (
+    <span className="inline-flex items-center rounded-full bg-amber px-2.5 py-0.5 text-xs font-semibold text-navy">Novo</span>
   );
 }
 
@@ -50,9 +38,7 @@ function Admin() {
   const qc = useQueryClient();
   const nav = useNavigate();
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<string[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
-  const [manage, setManage] = useState(false);
   const [view, setView] = useState<"todas" | "novas" | "verificadas">("novas");
 
   const role = useQuery({
@@ -63,40 +49,29 @@ function Admin() {
       return { admin: (data?.length ?? 0) > 0, email: u.user?.email };
     },
   });
-  const tags = useQuery({
-    queryKey: ["tags"], enabled: !!role.data?.admin,
-    queryFn: async () => { const { data, error } = await supabase.from("tags").select("*").order("created_at"); if (error) throw error; return data as Tag[]; },
-  });
   const apps = useQuery({
     queryKey: ["apps"], enabled: !!role.data?.admin,
     queryFn: async () => {
-      const { data, error } = await supabase.from("applications").select("*, application_tags(tag_id, comment)").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("applications").select("*").order("created_at", { ascending: false });
       if (error) throw error; return data as App[];
     },
   });
 
-  const toggleTag = useMutation({
-    mutationFn: async ({ app, tag, on }: { app: string; tag: string; on: boolean }) => {
-      const r = on
-        ? await supabase.from("application_tags").delete().eq("application_id", app).eq("tag_id", tag)
-        : await supabase.from("application_tags").insert({ application_id: app, tag_id: tag });
-      if (r.error) throw r.error;
+  const setVerified = useMutation({
+    mutationFn: async ({ id, verified }: { id: string; verified: boolean }) => {
+      const { error } = await supabase.from("applications").update({ verified }).eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
   });
-
-  const tagMap = useMemo(() => new Map((tags.data ?? []).map((t) => [t.id, t])), [tags.data]);
-  const verifiedId = (tags.data ?? []).find((t) => t.name.toLowerCase().startsWith("verific"))?.id;
-  const isVer = (a: App) => !!verifiedId && a.application_tags.some((t) => t.tag_id === verifiedId);
+  const isVer = (a: App) => a.verified;
   const counts = { novas: (apps.data ?? []).filter((a) => !isVer(a)).length, ver: (apps.data ?? []).filter(isVer).length };
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
     return (apps.data ?? []).filter((a) =>
       (view === "todas" || (view === "verificadas" ? isVer(a) : !isVer(a))) &&
-      (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')) &&
-      filter.every((f) => a.application_tags.some((t) => t.tag_id === f)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apps.data, q, filter, view, verifiedId]);
+      (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, ''))));
+  }, [apps.data, q, view]);
   const open = apps.data?.find((a) => a.id === openId) ?? null;
 
   const signOut = async () => {
@@ -149,17 +124,6 @@ function Admin() {
           ))}
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          <TagIcon className="h-4 w-4 text-muted-foreground" />
-          {(tags.data ?? []).map((t) => (
-            <Chip key={t.id} tag={t} on={filter.includes(t.id)} onClick={() => setFilter(filter.includes(t.id) ? filter.filter((x) => x !== t.id) : [...filter, t.id])} small />
-          ))}
-          {filter.length > 0 && <button onClick={() => setFilter([])} className="text-xs text-muted-foreground underline">Limpar filtro</button>}
-          <button onClick={() => setManage(true)} className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-navy hover:underline">
-            <Plus className="h-4 w-4" /> Gerir etiquetas
-          </button>
-        </div>
-
         <div className="mt-6 space-y-3">
           {apps.isLoading && <p className="text-muted-foreground">A carregar...</p>}
           {!apps.isLoading && list.length === 0 && (
@@ -174,7 +138,7 @@ function Admin() {
                 <p className="truncate text-sm text-muted-foreground">{a.email}{a.phone ? ` · ${a.phone}` : ""}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {a.application_tags.map((t) => tagMap.get(t.tag_id)).filter(Boolean).map((t) => <Chip key={t!.id} tag={t!} small />)}
+                <StatusBadge verified={a.verified} />
               </div>
               <p className="shrink-0 text-xs text-muted-foreground">{new Date(a.created_at).toLocaleDateString("pt-PT")}</p>
             </button>
@@ -184,11 +148,9 @@ function Admin() {
 
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {open && <Detail app={open} tags={tags.data ?? []} onToggle={(tag, on) => toggleTag.mutate({ app: open.id, tag, on })} onDeleted={() => setOpenId(null)} />}
+          {open && <Detail app={open} busy={setVerified.isPending} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
         </SheetContent>
       </Sheet>
-
-      <TagManager open={manage} onOpenChange={setManage} tags={tags.data ?? []} />
     </div>
   );
 }
@@ -202,34 +164,10 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-function TagComment({ appId, tag, initial }: { appId: string; tag: Tag; initial: string }) {
-  const qc = useQueryClient();
-  const [v, setV] = useState(initial);
-  const [ok, setOk] = useState(false);
-  const save = async () => {
-    if (v === initial) return;
-    await supabase.from("application_tags").update({ comment: v, updated_at: new Date().toISOString() }).eq("application_id", appId).eq("tag_id", tag.id);
-    setOk(true); setTimeout(() => setOk(false), 1500);
-    qc.invalidateQueries({ queryKey: ["apps"] });
-  };
-  return (
-    <div className="rounded-lg border-l-4 bg-cream p-3" style={{ borderColor: color(tag.color) }}>
-      <div className="flex items-center justify-between">
-        <Chip tag={tag} small />
-        {ok && <span className="text-xs text-navy">Guardado ✓</span>}
-      </div>
-      <textarea value={v} onChange={(e) => setV(e.target.value)} onBlur={save} rows={2}
-        placeholder={`Comentário sobre "${tag.name}"...`}
-        className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-navy" />
-    </div>
-  );
-}
-
-function Detail({ app, tags, onToggle, onDeleted }: { app: App; tags: Tag[]; onToggle: (tag: string, on: boolean) => void; onDeleted: () => void }) {
+function Detail({ app, busy, onVerify, onDeleted }: { app: App; busy: boolean; onVerify: (v: boolean) => void; onDeleted: () => void }) {
   const qc = useQueryClient();
   const [notes, setNotes] = useState(app.notes ?? "");
   const [saved, setSaved] = useState(false);
-  const has = (id: string) => app.application_tags.some((t) => t.tag_id === id);
 
   const download = async (path: string | null) => {
     if (!path) return;
@@ -260,18 +198,22 @@ function Detail({ app, tags, onToggle, onDeleted }: { app: App; tags: Tag[]; onT
         <p className="text-sm text-muted-foreground">Recebida a {new Date(app.created_at).toLocaleString("pt-PT")}</p>
       </SheetHeader>
 
-      <div className="mt-6">
-        <p className="text-sm font-semibold text-navy">Etiquetas</p>
-        <p className="text-xs text-muted-foreground">Toque para adicionar ou remover. Cada etiqueta ativa tem o seu comentário.</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {tags.map((t) => <Chip key={t.id} tag={t} on={has(t.id)} onClick={() => onToggle(t.id, has(t.id))} />)}
+      <div className="mt-6 rounded-xl border border-border bg-cream p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-navy">Estado</p>
+          <StatusBadge verified={app.verified} />
         </div>
-        <div className="mt-3 space-y-3">
-          {app.application_tags.map((at) => {
-            const t = tags.find((x) => x.id === at.tag_id);
-            return t ? <TagComment key={t.id} appId={app.id} tag={t} initial={at.comment ?? ""} /> : null;
-          })}
-        </div>
+        {app.verified ? (
+          <button onClick={() => onVerify(false)} disabled={busy}
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold text-navy disabled:opacity-60">
+            <Undo2 className="h-4 w-4" /> Voltar a marcar como Novo
+          </button>
+        ) : (
+          <button onClick={() => onVerify(true)} disabled={busy}
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-3 text-sm font-semibold text-navy-foreground disabled:opacity-60">
+            <Check className="h-4 w-4" /> Marcar como Verificado
+          </button>
+        )}
       </div>
 
       <div className="mt-6">
@@ -311,80 +253,5 @@ function Detail({ app, tags, onToggle, onDeleted }: { app: App; tags: Tag[]; onT
         <Trash2 className="h-4 w-4" /> Apagar candidatura
       </button>
     </>
-  );
-}
-
-function TagManager({ open, onOpenChange, tags }: { open: boolean; onOpenChange: (o: boolean) => void; tags: Tag[] }) {
-  const qc = useQueryClient();
-  const [name, setName] = useState("");
-  const [c, setC] = useState("blue");
-  const [err, setErr] = useState<string | null>(null);
-  const refresh = () => { qc.invalidateQueries({ queryKey: ["tags"] }); qc.invalidateQueries({ queryKey: ["apps"] }); };
-
-  const add = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    const { error } = await supabase.from("tags").insert({ name: name.trim(), color: c });
-    if (error) return setErr("Já existe uma etiqueta com esse nome.");
-    setErr(null); setName(""); refresh();
-  };
-  const del = async (t: Tag) => {
-    if (!confirm(`Apagar a etiqueta "${t.name}"? Será removida de todas as candidaturas.`)) return;
-    await supabase.from("tags").delete().eq("id", t.id); refresh();
-  };
-  const [editing, setEditing] = useState<string | null>(null);
-  const [eName, setEName] = useState("");
-  const [eColor, setEColor] = useState("blue");
-  const save = async (id: string) => {
-    if (!eName.trim()) return;
-    const { error } = await supabase.from("tags").update({ name: eName.trim(), color: eColor }).eq("id", id);
-    if (error) return setErr("Já existe uma etiqueta com esse nome.");
-    setErr(null); setEditing(null); refresh();
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader><DialogTitle className="font-display text-navy">Gerir etiquetas</DialogTitle></DialogHeader>
-        <form onSubmit={add} className="space-y-3">
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={30} placeholder="Nome da etiqueta (ex.: Entrevista marcada)"
-            className="w-full rounded-lg border border-border bg-cream px-3 py-2.5 text-sm outline-none focus:border-navy" />
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(TAG_COLORS).map((k) => (
-              <button type="button" key={k} onClick={() => setC(k)} aria-label={k}
-                className={`h-8 w-8 rounded-full border-2 ${c === k ? "border-navy" : "border-transparent"}`} style={{ background: color(k) }} />
-            ))}
-          </div>
-          {err && <p className="text-sm text-destructive">{err}</p>}
-          <button className="inline-flex items-center gap-1 rounded-md bg-navy px-4 py-2 text-sm font-semibold text-navy-foreground"><Plus className="h-4 w-4" /> Criar etiqueta</button>
-        </form>
-        <div className="mt-4 max-h-80 space-y-2 overflow-y-auto">
-          {tags.map((t) => editing === t.id ? (
-            <div key={t.id} className="space-y-2 rounded-lg border border-navy px-3 py-3">
-              <input value={eName} onChange={(e) => setEName(e.target.value)} maxLength={30}
-                className="w-full rounded-lg border border-border bg-cream px-3 py-2 text-sm outline-none focus:border-navy" />
-              <div className="flex flex-wrap gap-2">
-                {Object.keys(TAG_COLORS).map((k) => (
-                  <button type="button" key={k} onClick={() => setEColor(k)} aria-label={k}
-                    className={`h-7 w-7 rounded-full border-2 ${eColor === k ? "border-navy" : "border-transparent"}`} style={{ background: color(k) }} />
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => save(t.id)} className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-navy-foreground">Guardar</button>
-                <button onClick={() => setEditing(null)} className="rounded-md border border-border px-3 py-1.5 text-sm">Cancelar</button>
-              </div>
-            </div>
-          ) : (
-            <div key={t.id} className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2">
-              <Chip tag={t} small />
-              <div className="flex items-center gap-3">
-                <button onClick={() => { setEditing(t.id); setEName(t.name); setEColor(t.color); }} aria-label="Editar" className="text-muted-foreground hover:text-navy"><Pencil className="h-4 w-4" /></button>
-                <button onClick={() => del(t)} aria-label="Apagar" className="text-muted-foreground hover:text-destructive"><X className="h-4 w-4" /></button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
