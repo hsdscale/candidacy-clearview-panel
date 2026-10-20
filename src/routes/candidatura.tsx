@@ -374,8 +374,18 @@ function Candidatura() {
             </span>
             <h1 className="mt-6 font-display text-2xl font-extrabold text-navy sm:text-3xl">Candidatura enviada</h1>
             <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
-              Obrigado{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}! Recebemos a sua candidatura e a nossa equipa irá analisá-la. Entraremos em contacto através do email indicado.
+              Obrigado{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}! A sua candidatura foi recebida com sucesso.
             </p>
+            <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+              A nossa equipa irá analisar os seus dados e documentos. Entraremos em contacto caso necessitemos de novas informações ou caso venha a ser contratado.
+            </p>
+            {email.trim() && (
+              <p className="mx-auto mt-5 inline-flex max-w-full items-center gap-2 rounded-md bg-navy/5 px-4 py-2.5 text-sm text-navy">
+                <Mail className="h-4 w-4 shrink-0" />
+                <span className="truncate">{email.trim()}</span>
+              </p>
+            )}
+
             <Link to="/" className="mt-8 inline-flex items-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90">
               Voltar à página inicial
             </Link>
