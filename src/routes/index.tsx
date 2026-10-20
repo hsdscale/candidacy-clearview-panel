@@ -203,7 +203,7 @@ function Index() {
       </section>
 
       <footer className="bg-navy px-6 py-14 text-center text-navy-foreground">
-        <img src={logo2} alt="Alvanto" className="mx-auto h-10 w-auto sm:h-12" width={1415} height={231} loading="lazy" />
+        <img src={logo2} alt="Alvanto" className="mx-auto h-8 w-auto sm:h-10" width={1415} height={231} loading="lazy" />
         <p className="mx-auto mt-6 max-w-3xl text-xs opacity-60">
           Os valores apresentados são estimativas e podem variar consoante as horas trabalhadas, a experiência e a disponibilidade da vaga. Esta página não garante a contratação nem um rendimento específico. Os candidatos devem cumprir os requisitos de elegibilidade e de verificação.
         </p>
