@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, AlertCircle } from "lucide-react";
+import { UploadBox } from "@/components/UploadBox";
 
 export const Route = createFileRoute("/candidatura")({
   head: () => ({
@@ -84,6 +85,8 @@ function Candidatura() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [agree, setAgree] = useState(false);
+  const [cv, setCv] = useState<File | null>(null);
+  const [extra, setExtra] = useState<File | null>(null);
   const [tried, setTried] = useState(false);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
@@ -95,11 +98,14 @@ function Candidatura() {
     name: name.trim().split(/\s+/).filter(Boolean).length < 2,
     email: !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim()),
     agree: !agree,
+    cv: !cv,
+    extra: !extra,
   };
   const stepKeys: Record<number, (keyof typeof errs)[]> = {
     1: ["hours", "days", "start", "equip"],
     2: ["exp", "pt", "strengths", "why"],
     3: ["name", "email", "agree"],
+    4: ["cv", "extra"],
   };
   const show = (k: keyof typeof errs) => tried && errs[k];
   const level =
@@ -309,6 +315,28 @@ function Candidatura() {
 
             <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
               <button type="button" onClick={() => go(2)} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
+                <ArrowLeft className="h-4 w-4" /> Voltar
+              </button>
+              <button type="button" onClick={next} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto">
+                Continuar <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </>
+        ) : step === 4 ? (
+          <>
+            <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">Assistente de processamento de encomendas</p>
+            <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">Envio de documentos</h1>
+            <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+              Envie ficheiros nítidos e legíveis para a nossa equipa de recrutamento.
+            </p>
+
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              <UploadBox title="Currículo (CV)" file={cv} onChange={setCv} error={show("cv")} />
+              <UploadBox title="Carta de apresentação ou certificado" file={extra} onChange={setExtra} error={show("extra")} />
+            </div>
+
+            <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
+              <button type="button" onClick={() => go(3)} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
                 <ArrowLeft className="h-4 w-4" /> Voltar
               </button>
               <button type="button" onClick={next} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto">
