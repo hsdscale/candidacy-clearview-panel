@@ -15,7 +15,7 @@ export const Route = createFileRoute("/candidatura")({
 });
 
 const TOTAL = 5;
-const HOURS = [
+const HOURS: [string, string][] = [
   ["2-4 horas", "3 467–5 280 €/mês"],
   ["4-6 horas", "5 200–7 920 €/mês"],
   ["6-8 horas", "6 933–10 560 €/mês"],
