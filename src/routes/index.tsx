@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import logo from "@/assets/logo.webp";
+import logo2 from "@/assets/logo2.webp";
 import {
   ArrowRight, MapPin, Home, Wallet, Clock, CircleDollarSign, GraduationCap,
   CheckCircle2, Check, Laptop, ShieldCheck, MousePointerClick, FileText, UserCheck, Headphones, Sparkles,
@@ -36,7 +38,7 @@ function Index() {
     <div className="min-h-screen bg-cream font-sans text-foreground">
       <header className="border-b border-border bg-cream">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="font-display text-2xl font-bold">LOGO</span>
+          <img src={logo} alt="Alvanto" className="h-8 w-auto" width={1600} height={544} />
           <Btn>Ver requisitos</Btn>
         </div>
       </header>
@@ -199,7 +201,7 @@ function Index() {
       </section>
 
       <footer className="bg-navy px-6 py-14 text-center text-navy-foreground">
-        <span className="font-display text-2xl font-bold">LOGO2</span>
+        <img src={logo2} alt="Alvanto" className="h-8 w-auto" width={1600} height={544} loading="lazy" />
         <p className="mx-auto mt-6 max-w-3xl text-xs opacity-60">
           Os valores apresentados são estimativas e podem variar consoante as horas trabalhadas, a experiência e a disponibilidade da vaga. Esta página não garante a contratação nem um rendimento específico. Os candidatos devem cumprir os requisitos de elegibilidade e de verificação.
         </p>
