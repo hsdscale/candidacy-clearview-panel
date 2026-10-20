@@ -214,11 +214,11 @@ function Candidatura() {
   return (
     <div className="min-h-screen bg-cream font-sans text-foreground">
       <header className="border-b border-border bg-background">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link to="/" aria-label="Alvanto">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:h-[72px] sm:px-6">
+          <Link to="/" aria-label="Alvanto" className="min-w-0 shrink">
             <img src={logo} alt="Alvanto" className="h-[24px] w-auto" width={300} height={92} />
           </Link>
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-navy">
+          <Link to="/" className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-medium text-muted-foreground hover:text-navy sm:text-sm">
             <ArrowLeft className="h-4 w-4" /> Voltar à vaga
           </Link>
         </div>
