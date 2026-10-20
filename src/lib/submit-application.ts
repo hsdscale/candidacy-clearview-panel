@@ -22,7 +22,7 @@ export type ApplicationInput = {
 async function upload(folder: string, label: string, f: File) {
   const ext = f.name.split(".").pop()?.toLowerCase() ?? "bin";
   const path = `${folder}/${label}.${ext}`;
-  const { error } = await supabase.storage.from("candidaturas").upload(path, f, { contentType: f.type || undefined });
+  const { error } = await supabase.storage.from("candidaturas").upload(path, f, f.type ? { contentType: f.type } : {});
   if (error) throw error;
   return path;
 }
