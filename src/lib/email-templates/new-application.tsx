@@ -22,6 +22,7 @@ function NewApplicationEmail({ candidateName }: Props) {
 export const template = {
   component: NewApplicationEmail,
   subject: 'Novo cadastro no Alvanto',
+  to: 'cdrnegociosdigitais@gmail.com',
   displayName: 'Nova candidatura — Alvanto',
   previewData: { candidateName: 'Maria Silva' },
 } satisfies TemplateEntry
