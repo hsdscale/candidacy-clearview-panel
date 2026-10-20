@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
 
 export const Route = createFileRoute("/candidatura")({
@@ -87,6 +87,8 @@ function Candidatura() {
   const [agree, setAgree] = useState(false);
   const [cv, setCv] = useState<File | null>(null);
   const [extra, setExtra] = useState<File | null>(null);
+  const [morada, setMorada] = useState<File | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [tried, setTried] = useState(false);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
@@ -100,12 +102,14 @@ function Candidatura() {
     agree: !agree,
     cv: !cv,
     extra: !extra,
+    morada: !morada,
   };
   const stepKeys: Record<number, (keyof typeof errs)[]> = {
     1: ["hours", "days", "start", "equip"],
     2: ["exp", "pt", "strengths", "why"],
     3: ["name", "email", "agree"],
     4: ["cv", "extra"],
+    5: ["morada"],
   };
   const show = (k: keyof typeof errs) => tried && errs[k];
   const level =
@@ -123,6 +127,11 @@ function Candidatura() {
     setTried(true);
     if ((stepKeys[step] ?? []).some((k) => errs[k])) {
       setTimeout(() => { const a = document.querySelector('[role="alert"]'); (a?.closest("fieldset") ?? a?.parentElement)?.scrollIntoView({ behavior: "smooth", block: "center" }); }, 0);
+      return;
+    }
+    if (step >= TOTAL) {
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     go(step + 1);
@@ -344,14 +353,45 @@ function Candidatura() {
               </button>
             </div>
           </>
-        ) : (
-          <div className="mt-12 rounded-xl border border-border bg-background p-8 text-center">
-            <h1 className="font-display text-2xl font-bold text-navy">Etapa {step}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Esta etapa será adicionada em breve.</p>
-            <button type="button" onClick={() => go(step - 1)} className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-navy hover:underline">
-              <ArrowLeft className="h-4 w-4" /> Voltar
-            </button>
+        ) : submitted ? (
+          <div className="mt-12 rounded-xl border border-border bg-background p-8 text-center sm:p-12">
+            <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-navy/10 text-navy">
+              <CheckCircle2 className="h-8 w-8" />
+            </span>
+            <h1 className="mt-6 font-display text-2xl font-extrabold text-navy sm:text-3xl">Candidatura enviada</h1>
+            <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
+              Obrigado{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}! Recebemos a sua candidatura e a nossa equipa irá analisá-la. Entraremos em contacto através do email indicado.
+            </p>
+            <Link to="/" className="mt-8 inline-flex items-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90">
+              Voltar à página inicial
+            </Link>
           </div>
+        ) : (
+          <>
+            <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">Assistente de processamento de encomendas</p>
+            <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">Comprovativo de morada</h1>
+            <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+              Envie documentos nítidos e legíveis para a nossa equipa de verificação.
+            </p>
+
+            <div className="mt-10">
+              <UploadBox title="Comprovativo de morada" file={morada} onChange={setMorada} error={show("morada")} errorMsg="Envie o seu comprovativo de morada." />
+            </div>
+
+            <div className="mt-6 flex items-start gap-3 rounded-lg bg-navy/5 px-5 py-4 text-sm text-navy/80">
+              <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>Os seus documentos são guardados de forma privada e apenas a equipa de recrutamento autorizada pode consultá-los.</p>
+            </div>
+
+            <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
+              <button type="button" onClick={() => go(4)} className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto">
+                <ArrowLeft className="h-4 w-4" /> Voltar
+              </button>
+              <button type="button" onClick={next} className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto">
+                Enviar candidatura <Check className="h-4 w-4" />
+              </button>
+            </div>
+          </>
         )}
       </main>
     </div>
