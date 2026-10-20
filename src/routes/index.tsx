@@ -38,7 +38,7 @@ function Index() {
     <div className="min-h-screen bg-cream font-sans text-foreground">
       <header className="border-b border-border bg-cream">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-3 px-4 py-4 sm:justify-between sm:px-6">
-          <img src={logo} alt="Alvanto" className="h-9 w-auto sm:h-12" width={1415} height={231} />
+          <img src={logo} alt="Alvanto" className="h-8 w-auto sm:h-10" width={1415} height={231} />
           <Link to="/candidatura" className="inline-flex shrink-0 items-center gap-2 rounded-md bg-navy px-4 py-2 text-xs font-semibold text-navy-foreground transition hover:opacity-90 sm:px-5 sm:py-2.5 sm:text-sm">
             Ver requisitos <ArrowRight className="h-4 w-4" />
           </Link>
@@ -203,14 +203,14 @@ function Index() {
       </section>
 
       <footer className="bg-navy px-6 py-14 text-center text-navy-foreground">
-        <img src={logo2} alt="Alvanto" className="mx-auto h-10 w-auto sm:h-12" width={1415} height={231} loading="lazy" />
+        <img src={logo2} alt="Alvanto" className="mx-auto h-8 w-auto sm:h-10" width={1415} height={231} loading="lazy" />
         <p className="mx-auto mt-6 max-w-3xl text-xs opacity-60">
           Os valores apresentados são estimativas e podem variar consoante as horas trabalhadas, a experiência e a disponibilidade da vaga. Esta página não garante a contratação nem um rendimento específico. Os candidatos devem cumprir os requisitos de elegibilidade e de verificação.
         </p>
         <div className="mt-5 flex justify-center gap-3 text-xs opacity-70">
           <a href="#" className="underline">Aviso de privacidade</a>·<a href="#" className="underline">Definições de cookies</a>
         </div>
-        <p className="mt-5 text-xs opacity-50">© 2026 Amanto Careers. Todos os direitos reservados.</p>
+        <p className="mt-5 text-xs opacity-50">© 2026 Alvanto Careers. Todos os direitos reservados.</p>
       </footer>
     </div>
   );

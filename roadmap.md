@@ -15,4 +15,4 @@
 - [x] Destaque azul no valor mensal das opções de horas (etapa 1)
 - [ ] Confirmar valores reais por nível (40–45 / 50–55 / 60–65 €/h)
 - [x] Logo real da Alvanto (logo.webp no topo, logo2.webp no rodapé)
-- [x] Logo maior no topo de todas as páginas e centrada no rodapé
+- [x] Logo do topo em tamanho intermédio e centrada no rodapé; ícone do separador com a marca Alvanto
