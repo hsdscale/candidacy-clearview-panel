@@ -12,6 +12,6 @@
 - [x] Etapa 5 — comprovativo de morada + ecrã de confirmação
 - [x] Guardar candidaturas + painel /admin com login e etiquetas
 - [x] Mensagem de agradecimento no ecrã final (contacto se faltar informação ou se for contratado)
-- [x] Destaque azul nas opções de horas/valor (etapa 1)
+- [x] Destaque azul no valor mensal das opções de horas (etapa 1)
 - [ ] Confirmar valores reais por nível (40–45 / 50–55 / 60–65 €/h)
 - [ ] Logo real da Alvanto (ainda é texto "LOGO")
