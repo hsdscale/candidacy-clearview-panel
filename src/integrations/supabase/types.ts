@@ -17,15 +17,21 @@ export type Database = {
       application_tags: {
         Row: {
           application_id: string
+          comment: string | null
           tag_id: string
+          updated_at: string
         }
         Insert: {
           application_id: string
+          comment?: string | null
           tag_id: string
+          updated_at?: string
         }
         Update: {
           application_id?: string
+          comment?: string | null
           tag_id?: string
+          updated_at?: string
         }
         Relationships: [
           {

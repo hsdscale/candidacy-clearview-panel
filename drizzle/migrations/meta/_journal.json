@@ -8,6 +8,13 @@
       "when": 1792514864970,
       "tag": "0000_candidaturas_admin_tags",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792520523210,
+      "tag": "0001_tag_comments",
+      "breakpoints": true
     }
   ]
 }
