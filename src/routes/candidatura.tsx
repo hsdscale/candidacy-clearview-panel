@@ -35,7 +35,7 @@ const EQUIP = [
   "Espaço de trabalho tranquilo",
 ];
 
-function Radio({ on, inverted }: { on: boolean; inverted?: boolean }) {
+function Radio({ on, inverted, azure }: { on: boolean; inverted?: boolean; azure?: boolean }) {
   return (
     <span
       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
@@ -43,8 +43,8 @@ function Radio({ on, inverted }: { on: boolean; inverted?: boolean }) {
           ? inverted
             ? "border-navy-foreground"
             : "border-navy"
-          : inverted
-            ? "border-navy-foreground/50"
+          : azure
+            ? "border-azure/70"
             : "border-border"
       }`}
     >
@@ -276,7 +276,7 @@ function Candidatura() {
                       className={hourCls(hours === h)}
                       aria-pressed={hours === h}
                     >
-                      <Radio on={hours === h} inverted={hours === h} />
+                      <Radio on={hours === h} inverted={hours === h} azure />
                       <span className="flex-1">{h}</span>
                       <span className={hourValCls(hours === h)}>{v}</span>
                     </button>
