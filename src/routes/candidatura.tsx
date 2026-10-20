@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle, Mail } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
 import { submitApplication } from "@/lib/submit-application";
+import logo from "@/assets/logo.webp";
 
 export const Route = createFileRoute("/candidatura")({
   head: () => ({
@@ -214,8 +215,8 @@ function Candidatura() {
     <div className="min-h-screen bg-cream font-sans text-foreground">
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link to="/" className="font-display text-2xl font-bold">
-            LOGO
+          <Link to="/" aria-label="Alvanto">
+            <img src={logo} alt="Alvanto" className="h-8 w-auto" width={1410} height={225} />
           </Link>
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-navy">
             <ArrowLeft className="h-4 w-4" /> Voltar à vaga

@@ -38,7 +38,7 @@ function Index() {
     <div className="min-h-screen bg-cream font-sans text-foreground">
       <header className="border-b border-border bg-cream">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <img src={logo} alt="Alvanto" className="h-8 w-auto" width={1600} height={544} />
+          <img src={logo} alt="Alvanto" className="h-8 w-auto" width={1410} height={225} />
           <Btn>Ver requisitos</Btn>
         </div>
       </header>
@@ -201,7 +201,7 @@ function Index() {
       </section>
 
       <footer className="bg-navy px-6 py-14 text-center text-navy-foreground">
-        <img src={logo2} alt="Alvanto" className="h-8 w-auto" width={1600} height={544} loading="lazy" />
+        <img src={logo2} alt="Alvanto" className="h-8 w-auto" width={1410} height={225} loading="lazy" />
         <p className="mx-auto mt-6 max-w-3xl text-xs opacity-60">
           Os valores apresentados são estimativas e podem variar consoante as horas trabalhadas, a experiência e a disponibilidade da vaga. Esta página não garante a contratação nem um rendimento específico. Os candidatos devem cumprir os requisitos de elegibilidade e de verificação.
         </p>
