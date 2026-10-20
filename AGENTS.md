@@ -11,3 +11,4 @@
 
 - Candidate submissions insert directly from the browser (anon insert-only RLS) and upload files to the private `candidaturas` bucket under `<name-slug>_<id8>/`; only `has_role(admin)` can read. Why: public form without login, private review.
 - Admin panel lives at `src/routes/_authenticated/admin.tsx`; first account ever created becomes admin via trigger on auth.users. Why: bootstrap owner without manual SQL.
+- App emails use the managed synchronous send helper and React Email registry, with no local email queues or tables; /lovable/* bypasses app guards because email handlers authenticate their callers.

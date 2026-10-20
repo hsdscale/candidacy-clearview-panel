@@ -1,5 +1,8 @@
 # Roteiro
 
+- [x] Preparar envio de emails e modelo de aviso de nova candidatura
+- [ ] Ativar avisos automáticos — aguarda email destinatário e verificação do domínio
+
 - [x] Etapa 1 — disponibilidade
 - [x] Etapa 2 — experiência
 - [x] Etapa 3 — dados
