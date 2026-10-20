@@ -9,9 +9,13 @@ import { loadEnv } from "vite";
 import path from "node:path";
 
 export default defineConfig({
-  vite: ({ mode }) => {
-    Object.assign(process.env, loadEnv(mode, process.cwd(), ""));
-    return {
+  vite: {
+      plugins: [{
+        name: "server-email-env",
+        config(_config, { mode }) {
+          Object.assign(process.env, loadEnv(mode, process.cwd(), ""));
+        },
+      }],
       resolve: {
         alias: {
           "entities/lib/decode.js": path.resolve(process.cwd(), "node_modules/entities/lib/decode.js"),
@@ -19,7 +23,6 @@ export default defineConfig({
           entities: path.resolve(process.cwd(), "node_modules/entities"),
         },
       },
-    };
   },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
