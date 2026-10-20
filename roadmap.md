@@ -1,5 +1,7 @@
 # Roteiro
 
+- [x] Numerar candidaturas a partir de 1 no painel e nos emails
+
 - [x] Preparar envio de emails e modelo de aviso de nova candidatura
 - [x] Ligar avisos automáticos de novas candidaturas ao destinatário indicado e confirmar um envio real
 

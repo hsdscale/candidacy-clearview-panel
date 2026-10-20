@@ -52,6 +52,7 @@ export type Database = {
       }
       applications: {
         Row: {
+          application_number: number
           created_at: string
           cv_path: string | null
           days: string[]
@@ -72,6 +73,7 @@ export type Database = {
           why: string | null
         }
         Insert: {
+          application_number?: never
           created_at?: string
           cv_path?: string | null
           days?: string[]
@@ -92,6 +94,7 @@ export type Database = {
           why?: string | null
         }
         Update: {
+          application_number?: never
           created_at?: string
           cv_path?: string | null
           days?: string[]

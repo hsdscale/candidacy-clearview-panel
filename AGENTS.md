@@ -14,3 +14,4 @@
 - App emails use the managed synchronous send helper and React Email registry, with no local email queues or tables; /lovable/* bypasses app guards because email handlers authenticate their callers.
 - CSRF filters in src/start.ts use the supplied request context pathname, not server-only getRequest(); this keeps server imports out of the client graph while preserving server-function protection.
 - New-application notifications run after browser insert via a public POST server function that verifies the unguessable event ID, returns no candidate data, and sends a fixed template/recipient with event-based idempotency; privileged lookup and email imports stay in a .server module.
+- Candidature numbers use a unique GENERATED ALWAYS database identity and an update-protection trigger; panel and email read the persisted number, never derive it from list position or reuse it after deletion.
