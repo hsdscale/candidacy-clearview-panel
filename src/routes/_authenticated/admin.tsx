@@ -36,6 +36,11 @@ function StatusBadge({ verified, wrong }: { verified: boolean; wrong?: boolean }
   );
 }
 
+function fmtDate(iso: string) {
+  const d = new Date(iso);
+  return `${d.toLocaleDateString("pt-PT")} · ${d.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 function Admin() {
   const qc = useQueryClient();
   const nav = useNavigate();
@@ -174,7 +179,7 @@ function Admin() {
               <div className="flex flex-wrap gap-1.5">
                 <StatusBadge verified={a.verified} wrong={a.wrong_docs} />
               </div>
-              <p className="shrink-0 text-xs text-muted-foreground">{new Date(a.created_at).toLocaleDateString("pt-PT")}</p>
+              <p className="shrink-0 whitespace-nowrap text-xs tabular-nums text-muted-foreground">{fmtDate(a.created_at)}</p>
             </button>
           ))}
         </div>
@@ -257,7 +262,7 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
       <SheetHeader>
         <p className="text-sm font-semibold text-navy">Candidatura n.º {app.application_number}</p>
         <SheetTitle className="font-display text-2xl text-navy">{app.name}</SheetTitle>
-        <p className="text-sm text-muted-foreground">Recebida a {new Date(app.created_at).toLocaleString("pt-PT")}</p>
+        <p className="text-sm text-muted-foreground">Recebida a {fmtDate(app.created_at)}</p>
       </SheetHeader>
 
       <div className="mt-6 rounded-xl border border-border bg-cream p-4">
