@@ -176,6 +176,12 @@ function Admin() {
                 <p className="truncate font-semibold text-navy">{a.name}</p>
                 <p className="truncate text-sm text-muted-foreground">{a.email}{a.phone ? ` · ${a.phone}` : ""}</p>
               </div>
+              {a.notes && (
+                <p className="flex w-full min-w-0 items-start gap-1.5 text-xs text-muted-foreground sm:w-auto sm:flex-1 sm:items-center">
+                  <StickyNote className="mt-0.5 h-3.5 w-3.5 shrink-0 sm:mt-0" />
+                  <span className="line-clamp-2 sm:truncate">{a.notes}</span>
+                </p>
+              )}
               <div className="flex flex-wrap gap-1.5">
                 <StatusBadge verified={a.verified} wrong={a.wrong_docs} />
               </div>
