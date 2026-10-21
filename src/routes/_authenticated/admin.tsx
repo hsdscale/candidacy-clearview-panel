@@ -71,6 +71,30 @@ function Admin() {
   const isNew = (a: App) => !a.verified && !a.wrong_docs;
   const counts = { novas: (apps.data ?? []).filter(isNew).length, ver: (apps.data ?? []).filter(isVer).length, err: (apps.data ?? []).filter(isWrong).length };
   const [draft, setDraft] = useState<string | null>(null);
+  const presets = useQuery({
+    queryKey: ["presets"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("email_presets").select("id, name, body").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+  const savePreset = async (body: string) => {
+    const name = prompt("Nome da predefinição (ex.: CV ilegível):")?.trim();
+    if (!name) return;
+    const existing = presets.data?.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    const { error } = existing
+      ? await supabase.from("email_presets").update({ body }).eq("id", existing.id)
+      : await supabase.from("email_presets").insert({ name: name.slice(0, 80), body });
+    if (error) return alert("Não foi possível guardar a predefinição.");
+    qc.invalidateQueries({ queryKey: ["presets"] });
+    alert(existing ? "Predefinição atualizada." : "Predefinição guardada.");
+  };
+  const deletePreset = async (id: string, name: string) => {
+    if (!confirm(`Apagar a predefinição "${name}"?`)) return;
+    await supabase.from("email_presets").delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["presets"] });
+  };
   const wrong = useMutation({
     mutationFn: (v: { id: string; message: string }) => markWrongDocs({ data: v }),
     onSuccess: (r) => { setDraft(null); qc.invalidateQueries({ queryKey: ["apps"] }); alert(r.emailed ? "Email enviado ao candidato." : "Marcado, mas o email não pôde ser enviado a este endereço."); },
@@ -164,10 +188,22 @@ function Admin() {
               <div className="w-full max-w-lg rounded-2xl bg-background p-5 shadow-xl">
                 <h3 className="text-lg font-bold">Email para {open.name.split(" ")[0]}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">Enviado para {open.email}. Edite o texto à vontade — a saudação, o botão "Reenviar documentos" e a assinatura são adicionados automaticamente.</p>
+                <div className="mt-3">
+                  <p className="text-xs font-semibold">Predefinições</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    <button onClick={() => setDraft(defaultWrongMessage(open.application_number))} className="rounded-full border border-input px-3 py-1 text-xs font-semibold hover:bg-muted">Texto padrão</button>
+                    {(presets.data ?? []).map((p) => (
+                      <span key={p.id} className="inline-flex items-center rounded-full border border-input text-xs font-semibold">
+                        <button onClick={() => setDraft(p.body.replaceAll("{numero}", String(open.application_number ?? "")))} className="py-1 pl-3 pr-1.5 hover:underline">{p.name}</button>
+                        <button aria-label={`Apagar ${p.name}`} onClick={() => deletePreset(p.id, p.name)} className="pr-2 text-muted-foreground hover:text-destructive">×</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
                 <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={9} maxLength={3000}
                   className="mt-3 w-full rounded-xl border border-input bg-background p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring" />
                 <div className="mt-3 flex flex-wrap justify-end gap-2">
-                  <button onClick={() => setDraft(defaultWrongMessage(open.application_number))} className="mr-auto text-xs font-semibold text-muted-foreground underline">Repor texto padrão</button>
+                  <button disabled={draft.trim().length < 5} onClick={() => savePreset(draft.trim())} className="mr-auto text-xs font-semibold text-muted-foreground underline disabled:opacity-50">Guardar como predefinição</button>
                   <button onClick={() => setDraft(null)} className="rounded-full border border-input px-4 py-2 text-sm font-semibold">Cancelar</button>
                   <button disabled={wrong.isPending || draft.trim().length < 5} onClick={() => wrong.mutate({ id: open.id, message: draft.trim() })}
                     className="rounded-full bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50">{wrong.isPending ? "A enviar…" : "Enviar email"}</button>
