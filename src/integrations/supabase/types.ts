@@ -125,6 +125,27 @@ export type Database = {
         }
         Relationships: []
       }
+      email_presets: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           color: string
