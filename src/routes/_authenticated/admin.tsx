@@ -70,9 +70,10 @@ function Admin() {
   const isWrong = (a: App) => !a.verified && a.wrong_docs;
   const isNew = (a: App) => !a.verified && !a.wrong_docs;
   const counts = { novas: (apps.data ?? []).filter(isNew).length, ver: (apps.data ?? []).filter(isVer).length, err: (apps.data ?? []).filter(isWrong).length };
+  const [draft, setDraft] = useState<string | null>(null);
   const wrong = useMutation({
-    mutationFn: (id: string) => markWrongDocs({ data: { id } }),
-    onSuccess: (r) => { qc.invalidateQueries({ queryKey: ["apps"] }); alert(r.emailed ? "Email enviado ao candidato." : "Marcado, mas o email não pôde ser enviado a este endereço."); },
+    mutationFn: (v: { id: string; message: string }) => markWrongDocs({ data: v }),
+    onSuccess: (r) => { setDraft(null); qc.invalidateQueries({ queryKey: ["apps"] }); alert(r.emailed ? "Email enviado ao candidato." : "Marcado, mas o email não pôde ser enviado a este endereço."); },
     onError: () => alert("Não foi possível enviar o email. Tente novamente."),
   });
   const list = useMemo(() => {
@@ -157,7 +158,23 @@ function Admin() {
 
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {open && <Detail app={open} busy={setVerified.isPending || wrong.isPending} onWrong={() => { if (confirm(`Enviar email a ${open.email} a pedir novos documentos?`)) wrong.mutate(open.id); }} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
+          {open && <Detail app={open} busy={setVerified.isPending || wrong.isPending} onWrong={() => setDraft(defaultWrongMessage(open.application_number))} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
+          {open && draft !== null && (
+            <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40 p-3 sm:items-center">
+              <div className="w-full max-w-lg rounded-2xl bg-background p-5 shadow-xl">
+                <h3 className="text-lg font-bold">Email para {open.name.split(" ")[0]}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Enviado para {open.email}. Edite o texto à vontade — a saudação, o botão "Reenviar documentos" e a assinatura são adicionados automaticamente.</p>
+                <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={9} maxLength={3000}
+                  className="mt-3 w-full rounded-xl border border-input bg-background p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring" />
+                <div className="mt-3 flex flex-wrap justify-end gap-2">
+                  <button onClick={() => setDraft(defaultWrongMessage(open.application_number))} className="mr-auto text-xs font-semibold text-muted-foreground underline">Repor texto padrão</button>
+                  <button onClick={() => setDraft(null)} className="rounded-full border border-input px-4 py-2 text-sm font-semibold">Cancelar</button>
+                  <button disabled={wrong.isPending || draft.trim().length < 5} onClick={() => wrong.mutate({ id: open.id, message: draft.trim() })}
+                    className="rounded-full bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50">{wrong.isPending ? "A enviar…" : "Enviar email"}</button>
+                </div>
+              </div>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
     </div>
@@ -269,4 +286,10 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
       </button>
     </>
   );
+}
+
+function defaultWrongMessage(n: number | null) {
+  return `Analisámos a sua candidatura${n != null ? ` n.º ${n}` : ""} e verificámos que os documentos enviados não estão corretos ou não estão legíveis.
+
+Para continuarmos o processo, volte a enviar o Currículo (CV), a carta de apresentação ou certificado e o comprovativo de morada no link abaixo. Não precisa de preencher o questionário outra vez.`;
 }

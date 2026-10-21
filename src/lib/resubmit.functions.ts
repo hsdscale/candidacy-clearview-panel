@@ -4,12 +4,12 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 
 export const markWrongDocs = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
+  .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), message: z.string().trim().min(5).max(3000) }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc('has_role', { _user_id: context.userId, _role: 'admin' });
     if (!isAdmin) throw new Error('Sem permissão');
     const { markWrongDocsAndEmail } = await import('./resubmit.server');
-    return markWrongDocsAndEmail(data.id);
+    return markWrongDocsAndEmail(data.id, data.message);
   });
 
 export const getResubmit = createServerFn({ method: 'POST' })

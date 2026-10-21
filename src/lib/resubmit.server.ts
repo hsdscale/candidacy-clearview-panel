@@ -8,14 +8,14 @@ export function folderOf(path: string | null) {
 }
 
 /** Caller must already be verified as admin. */
-export async function markWrongDocsAndEmail(id: string) {
+export async function markWrongDocsAndEmail(id: string, message?: string) {
   const token = crypto.randomUUID();
   const { data, error } = await supabaseAdmin.from('applications')
     .update({ wrong_docs: true, verified: false, resubmit_token: token })
     .eq('id', id).select('name, email, application_number').maybeSingle();
   if (error || !data) throw new Error('Candidatura não encontrada');
   const result = await sendTemplateEmail('wrong-documents', data.email, {
-    templateData: { candidateName: data.name, applicationNumber: data.application_number, link: `${SITE_URL}/reenviar/${token}` },
+    templateData: { candidateName: data.name, applicationNumber: data.application_number, link: `${SITE_URL}/reenviar/${token}`, message },
     idempotencyKey: `wrong-docs-${token}`,
   });
   return { emailed: result.sent };
