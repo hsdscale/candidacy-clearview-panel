@@ -262,7 +262,7 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
       <SheetHeader>
         <p className="text-sm font-semibold text-navy">Candidatura n.º {app.application_number}</p>
         <SheetTitle className="font-display text-2xl text-navy">{app.name}</SheetTitle>
-        <p className="text-sm text-muted-foreground">Recebida a {new Date(app.created_at).toLocaleString("pt-PT")}</p>
+        <p className="text-sm text-muted-foreground">Recebida a {fmtDate(app.created_at)}</p>
       </SheetHeader>
 
       <div className="mt-6 rounded-xl border border-border bg-cream p-4">
