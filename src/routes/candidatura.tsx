@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle, Mail } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
 import { submitApplication } from "@/lib/submit-application";
+import { trackPixel } from "@/lib/meta-pixel";
 import logo from "@/assets/logo.webp";
 
 export const Route = createFileRoute("/candidatura")({
@@ -198,6 +199,8 @@ function Candidatura() {
           extra,
           morada,
         });
+        trackPixel("Lead");
+        trackPixel("CompleteRegistration");
         setSubmitted(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (e) {
