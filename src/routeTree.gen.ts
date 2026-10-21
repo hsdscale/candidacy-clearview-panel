@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CandidaturaRouteImport } from './routes/candidatura'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ReenviarTokenRouteImport } from './routes/reenviar.$token'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -40,6 +41,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ReenviarTokenRoute = ReenviarTokenRouteImport.update({
+  id: '/reenviar/$token',
+  path: '/reenviar/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/candidatura': typeof CandidaturaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/reenviar/$token': typeof ReenviarTokenRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/candidatura': typeof CandidaturaRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/reenviar/$token': typeof ReenviarTokenRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/candidatura': typeof CandidaturaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/reenviar/$token': typeof ReenviarTokenRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/candidatura'
     | '/admin'
+    | '/reenviar/$token'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/candidatura'
     | '/admin'
+    | '/reenviar/$token'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/candidatura'
     | '/_authenticated/admin'
+    | '/reenviar/$token'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -100,6 +112,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CandidaturaRoute: typeof CandidaturaRoute
+  ReenviarTokenRoute: typeof ReenviarTokenRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -140,6 +153,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/reenviar/$token': {
+      id: '/reenviar/$token'
+      path: '/reenviar/$token'
+      fullPath: '/reenviar/$token'
+      preLoaderRoute: typeof ReenviarTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -166,6 +186,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CandidaturaRoute: CandidaturaRoute,
+  ReenviarTokenRoute: ReenviarTokenRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport

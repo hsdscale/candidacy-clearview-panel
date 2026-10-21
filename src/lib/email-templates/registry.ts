@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { template as newApplicationTemplate } from './new-application'
+import { template as wrongDocumentsTemplate } from './wrong-documents'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -20,4 +21,5 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'new-application': newApplicationTemplate,
+  'wrong-documents': wrongDocumentsTemplate,
 }

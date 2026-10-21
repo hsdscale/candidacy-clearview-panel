@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Download, Trash2, FileText, Check, Undo2 } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle } from "lucide-react";
+import { markWrongDocs } from "@/lib/resubmit.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -23,10 +24,11 @@ type App = {
   hours: string | null; days: string[]; start_when: string | null; equipment: string[];
   experience: string | null; pt_level: string | null; strengths: string[]; why: string | null; level: string | null;
   cv_path: string | null; extra_path: string | null; morada_path: string | null; notes: string | null;
-  verified: boolean;
+  verified: boolean; wrong_docs: boolean;
 };
 
-function StatusBadge({ verified }: { verified: boolean }) {
+function StatusBadge({ verified, wrong }: { verified: boolean; wrong?: boolean }) {
+  if (wrong && !verified) return <span className="inline-flex items-center gap-1 rounded-full bg-destructive px-2.5 py-0.5 text-xs font-semibold text-destructive-foreground"><AlertTriangle className="h-3 w-3" />Doc Errado</span>;
   return verified ? (
     <span className="inline-flex items-center gap-1 rounded-full bg-navy px-2.5 py-0.5 text-xs font-semibold text-navy-foreground"><Check className="h-3 w-3" />Verificado</span>
   ) : (
@@ -39,7 +41,7 @@ function Admin() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [view, setView] = useState<"todas" | "novas" | "verificadas">("novas");
+  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados">("novas");
 
   const role = useQuery({
     queryKey: ["is-admin"],
@@ -59,17 +61,24 @@ function Admin() {
 
   const setVerified = useMutation({
     mutationFn: async ({ id, verified }: { id: string; verified: boolean }) => {
-      const { error } = await supabase.from("applications").update({ verified }).eq("id", id);
+      const { error } = await supabase.from("applications").update(verified ? { verified, wrong_docs: false } : { verified }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
   });
   const isVer = (a: App) => a.verified;
-  const counts = { novas: (apps.data ?? []).filter((a) => !isVer(a)).length, ver: (apps.data ?? []).filter(isVer).length };
+  const isWrong = (a: App) => !a.verified && a.wrong_docs;
+  const isNew = (a: App) => !a.verified && !a.wrong_docs;
+  const counts = { novas: (apps.data ?? []).filter(isNew).length, ver: (apps.data ?? []).filter(isVer).length, err: (apps.data ?? []).filter(isWrong).length };
+  const wrong = useMutation({
+    mutationFn: (id: string) => markWrongDocs({ data: { id } }),
+    onSuccess: (r) => { qc.invalidateQueries({ queryKey: ["apps"] }); alert(r.emailed ? "Email enviado ao candidato." : "Marcado, mas o email não pôde ser enviado a este endereço."); },
+    onError: () => alert("Não foi possível enviar o email. Tente novamente."),
+  });
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
     return (apps.data ?? []).filter((a) =>
-      (view === "todas" || (view === "verificadas" ? isVer(a) : !isVer(a))) &&
+      (view === "todas" || (view === "verificadas" ? isVer(a) : view === "errados" ? isWrong(a) : isNew(a))) &&
       (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')));
   }, [apps.data, q, view]);
   const open = apps.data?.find((a) => a.id === openId) ?? null;
@@ -115,8 +124,8 @@ function Admin() {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-3 gap-2 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto">
-          {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver]] as const).map(([k, label, n]) => (
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto">
+          {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err]] as const).map(([k, label, n]) => (
             <button key={k} onClick={() => setView(k)}
               className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${view === k ? "bg-navy text-navy-foreground" : "text-navy hover:bg-muted"}`}>
               {label} <span className="opacity-70">({n})</span>
@@ -138,7 +147,7 @@ function Admin() {
                 <p className="truncate text-sm text-muted-foreground">{a.email}{a.phone ? ` · ${a.phone}` : ""}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <StatusBadge verified={a.verified} />
+                <StatusBadge verified={a.verified} wrong={a.wrong_docs} />
               </div>
               <p className="shrink-0 text-xs text-muted-foreground">{new Date(a.created_at).toLocaleDateString("pt-PT")}</p>
             </button>
@@ -148,7 +157,7 @@ function Admin() {
 
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {open && <Detail app={open} busy={setVerified.isPending} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
+          {open && <Detail app={open} busy={setVerified.isPending || wrong.isPending} onWrong={() => { if (confirm(`Enviar email a ${open.email} a pedir novos documentos?`)) wrong.mutate(open.id); }} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
         </SheetContent>
       </Sheet>
     </div>
@@ -164,7 +173,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-function Detail({ app, busy, onVerify, onDeleted }: { app: App; busy: boolean; onVerify: (v: boolean) => void; onDeleted: () => void }) {
+function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: boolean; onWrong: () => void; onVerify: (v: boolean) => void; onDeleted: () => void }) {
   const qc = useQueryClient();
   const [notes, setNotes] = useState(app.notes ?? "");
   const [saved, setSaved] = useState(false);
@@ -201,7 +210,7 @@ function Detail({ app, busy, onVerify, onDeleted }: { app: App; busy: boolean; o
       <div className="mt-6 rounded-xl border border-border bg-cream p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-semibold text-navy">Estado</p>
-          <StatusBadge verified={app.verified} />
+          <StatusBadge verified={app.verified} wrong={app.wrong_docs} />
         </div>
         {app.verified ? (
           <button onClick={() => onVerify(false)} disabled={busy}
@@ -212,6 +221,12 @@ function Detail({ app, busy, onVerify, onDeleted }: { app: App; busy: boolean; o
           <button onClick={() => onVerify(true)} disabled={busy}
             className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-3 text-sm font-semibold text-navy-foreground disabled:opacity-60">
             <Check className="h-4 w-4" /> Marcar como Verificado
+          </button>
+        )}
+        {!app.verified && (
+          <button onClick={onWrong} disabled={busy}
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive px-4 py-3 text-sm font-semibold text-destructive disabled:opacity-60">
+            <AlertTriangle className="h-4 w-4" /> {app.wrong_docs ? "Reenviar email de Doc Errado" : "Doc Errado — pedir novos documentos"}
           </button>
         )}
       </div>

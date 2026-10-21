@@ -68,10 +68,12 @@ export type Database = {
           notes: string | null
           phone: string | null
           pt_level: string | null
+          resubmit_token: string | null
           start_when: string | null
           strengths: string[]
           verified: boolean
           why: string | null
+          wrong_docs: boolean
         }
         Insert: {
           application_number?: never
@@ -90,10 +92,12 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           pt_level?: string | null
+          resubmit_token?: string | null
           start_when?: string | null
           strengths?: string[]
           verified?: boolean
           why?: string | null
+          wrong_docs?: boolean
         }
         Update: {
           application_number?: never
@@ -112,10 +116,12 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           pt_level?: string | null
+          resubmit_token?: string | null
           start_when?: string | null
           strengths?: string[]
           verified?: boolean
           why?: string | null
+          wrong_docs?: boolean
         }
         Relationships: []
       }

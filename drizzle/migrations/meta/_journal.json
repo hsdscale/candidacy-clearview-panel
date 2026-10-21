@@ -36,6 +36,13 @@
       "when": 1792529202933,
       "tag": "0004_application_verified",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792602349233,
+      "tag": "0005_wrong_documents",
+      "breakpoints": true
     }
   ]
 }
