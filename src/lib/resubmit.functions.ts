@@ -18,7 +18,7 @@ export const getResubmit = createServerFn({ method: 'POST' })
     const { findByToken, folderOf } = await import('./resubmit.server');
     const app = await findByToken(data.token);
     if (!app) return null;
-    return { firstName: app.name.split(' ')[0], number: app.application_number, folder: folderOf(app.cv_path) };
+    return { firstName: app.name.split(' ')[0] ?? '', number: app.application_number, folder: folderOf(app.cv_path) ?? null };
   });
 
 const pathSchema = z.string().min(3).max(200);

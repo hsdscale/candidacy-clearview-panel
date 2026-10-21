@@ -4,7 +4,7 @@ import { sendTemplateEmail } from './email-templates/send-email';
 const SITE_URL = 'https://amasom.store';
 
 export function folderOf(path: string | null) {
-  return path ? path.split('/')[0] : null;
+  return path ? (path.split('/')[0] ?? null) : null;
 }
 
 /** Caller must already be verified as admin. */
