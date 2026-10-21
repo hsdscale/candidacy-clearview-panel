@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote } from "lucide-react";
 import { markWrongDocs } from "@/lib/resubmit.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -176,6 +176,12 @@ function Admin() {
                 <p className="truncate font-semibold text-navy">{a.name}</p>
                 <p className="truncate text-sm text-muted-foreground">{a.email}{a.phone ? ` · ${a.phone}` : ""}</p>
               </div>
+              {a.notes && (
+                <p className="flex w-full min-w-0 items-start gap-1.5 text-xs text-muted-foreground sm:w-auto sm:flex-1 sm:items-center">
+                  <StickyNote className="mt-0.5 h-3.5 w-3.5 shrink-0 sm:mt-0" />
+                  <span className="line-clamp-2 sm:truncate">{a.notes}</span>
+                </p>
+              )}
               <div className="flex flex-wrap gap-1.5">
                 <StatusBadge verified={a.verified} wrong={a.wrong_docs} />
               </div>
