@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote, Clock } from "lucide-react";
+import { isVer, isWrong, isUso, isNew } from "@/lib/app-state";
 import { markWrongDocs } from "@/lib/resubmit.functions";
 import { listTeamUsers, setMemberAccess, saveMemberNote } from "@/lib/team.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,14 +27,14 @@ type App = {
   hours: string | null; days: string[]; start_when: string | null; equipment: string[];
   experience: string | null; pt_level: string | null; strengths: string[]; why: string | null; level: string | null;
   cv_path: string | null; extra_path: string | null; morada_path: string | null; notes: string | null;
-  verified: boolean; wrong_docs: boolean;
+  verified: boolean; wrong_docs: boolean; uso: boolean;
 };
 
-function StatusBadge({ verified, wrong }: { verified: boolean; wrong?: boolean }) {
+function StatusBadge({ verified, wrong, uso }: { verified: boolean; wrong?: boolean; uso?: boolean }) {
   if (wrong && !verified) return <span className="inline-flex items-center gap-1 rounded-full bg-destructive px-2.5 py-0.5 text-xs font-semibold text-destructive-foreground"><AlertTriangle className="h-3 w-3" />Doc Errado</span>;
-  return verified ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-navy px-2.5 py-0.5 text-xs font-semibold text-navy-foreground"><Check className="h-3 w-3" />Verificado</span>
-  ) : (
+  if (verified) return <span className="inline-flex items-center gap-1 rounded-full bg-navy px-2.5 py-0.5 text-xs font-semibold text-navy-foreground"><Check className="h-3 w-3" />Verificado</span>;
+  if (uso) return <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-navy"><Clock className="h-3 w-3" />Em uso</span>;
+  return (
     <span className="inline-flex items-center rounded-full bg-amber px-2.5 py-0.5 text-xs font-semibold text-navy">Novo</span>
   );
 }
@@ -48,7 +49,7 @@ function Admin() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados" | "usuarios">("novas");
+  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados" | "uso" | "usuarios">("novas");
 
   const role = useQuery({
     queryKey: ["my-role"],
@@ -71,15 +72,31 @@ function Admin() {
 
   const setVerified = useMutation({
     mutationFn: async ({ id, verified }: { id: string; verified: boolean }) => {
-      const { error } = await supabase.from("applications").update(verified ? { verified, wrong_docs: false } : { verified }).eq("id", id);
+      const { error } = await supabase.from("applications").update(verified ? { verified, wrong_docs: false, uso: false } : { verified }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
   });
-  const isVer = (a: App) => a.verified;
-  const isWrong = (a: App) => !a.verified && a.wrong_docs;
-  const isNew = (a: App) => !a.verified && !a.wrong_docs;
-  const counts = { novas: (apps.data ?? []).filter(isNew).length, ver: (apps.data ?? []).filter(isVer).length, err: (apps.data ?? []).filter(isWrong).length };
+  const setUso = useMutation({
+    mutationFn: async ({ id, uso }: { id: string; uso: boolean }) => {
+      const { error } = await supabase.from("applications").update({ uso, verified: false, wrong_docs: false }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
+  });
+  const resetState = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("applications").update({ verified: false, uso: false, wrong_docs: false }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
+  });
+  const counts = {
+    novas: (apps.data ?? []).filter(isNew).length,
+    uso: (apps.data ?? []).filter(isUso).length,
+    ver: (apps.data ?? []).filter(isVer).length,
+    err: (apps.data ?? []).filter(isWrong).length,
+  };
   const [draft, setDraft] = useState<string | null>(null);
   const presets = useQuery({
     queryKey: ["presets"], enabled: isAdmin,
@@ -114,7 +131,7 @@ function Admin() {
     const s = q.trim().toLowerCase();
     const v = isMember ? "verificadas" : view;
     return (apps.data ?? []).filter((a) =>
-      (v === "todas" || (v === "verificadas" ? isVer(a) : v === "errados" ? isWrong(a) : isNew(a))) &&
+      (v === "todas" || (v === "verificadas" ? isVer(a) : v === "errados" ? isWrong(a) : v === "uso" ? isUso(a) : isNew(a))) &&
       (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')));
   }, [apps.data, q, view, isMember]);
   const open = apps.data?.find((a) => a.id === openId) ?? null;
