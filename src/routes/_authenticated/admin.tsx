@@ -155,6 +155,10 @@ function Admin() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        {view === "usuarios" && isAdmin ? (
+          <TeamPanel />
+        ) : (
+        <>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">
             Candidaturas <span className="text-base font-semibold text-muted-foreground">({list.length})</span>
@@ -166,6 +170,7 @@ function Admin() {
           </div>
         </div>
 
+        {!isMember && (
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto">
           {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err]] as const).map(([k, label, n]) => (
             <button key={k} onClick={() => setView(k)}
@@ -174,6 +179,7 @@ function Admin() {
             </button>
           ))}
         </div>
+        )}
 
         <div className="mt-6 space-y-3">
           {apps.isLoading && <p className="text-muted-foreground">A carregar...</p>}
