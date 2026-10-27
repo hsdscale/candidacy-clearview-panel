@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote, Users } from "lucide-react";
 import { markWrongDocs } from "@/lib/resubmit.functions";
+import { listTeamUsers, setMemberAccess, saveMemberNote } from "@/lib/team.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -46,18 +47,21 @@ function Admin() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados">("novas");
+  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados" | "usuarios">("novas");
 
   const role = useQuery({
-    queryKey: ["is-admin"],
+    queryKey: ["my-role"],
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id).eq("role", "admin");
-      return { admin: (data?.length ?? 0) > 0, email: u.user?.email };
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id);
+      const roles = (data ?? []).map((r) => r.role);
+      return { admin: roles.includes("admin"), member: roles.includes("user"), email: u.user?.email };
     },
   });
+  const isAdmin = !!role.data?.admin;
+  const isMember = !!role.data?.member && !isAdmin;
   const apps = useQuery({
-    queryKey: ["apps"], enabled: !!role.data?.admin,
+    queryKey: ["apps"], enabled: isAdmin || isMember,
     queryFn: async () => {
       const { data, error } = await supabase.from("applications").select("*").order("created_at", { ascending: false });
       if (error) throw error; return data as App[];
