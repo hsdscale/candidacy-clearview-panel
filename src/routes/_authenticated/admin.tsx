@@ -180,8 +180,8 @@ function Admin() {
         </div>
 
         {isAdmin && (
-        <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto sm:grid-cols-5">
-          {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err]] as const).map(([k, label, n]) => (
+        <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto sm:grid-cols-6">
+          {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err], ["uso", "Em uso", counts.uso]] as const).map(([k, label, n]) => (
             <Button variant="ghost" key={k} onClick={() => setView(k)}
               className={`h-auto rounded-lg px-4 py-2 text-sm font-semibold transition ${view === k ? "bg-navy text-navy-foreground hover:bg-navy hover:text-navy-foreground" : "text-navy hover:bg-muted"}`}>
               {label} <span className="opacity-70">({n})</span>
