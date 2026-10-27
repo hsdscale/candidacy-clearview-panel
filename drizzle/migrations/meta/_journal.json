@@ -64,6 +64,13 @@
       "when": 1793112612992,
       "tag": "0008_uso_state",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793137421686,
+      "tag": "0009_member_read_verified_files",
+      "breakpoints": true
     }
   ]
 }
