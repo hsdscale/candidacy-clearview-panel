@@ -338,7 +338,6 @@ function Detail({ app, member, busy, onWrong, onVerify, onUso, onReset, onDelete
         )}
       </div>
 
-      {!member && (
       <div className="mt-6">
         <p className="text-sm font-semibold text-navy">Ficheiros</p>
         <div className="mt-2 space-y-2">
