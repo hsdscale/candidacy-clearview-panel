@@ -81,7 +81,7 @@ function Admin() {
   const counts = { novas: (apps.data ?? []).filter(isNew).length, ver: (apps.data ?? []).filter(isVer).length, err: (apps.data ?? []).filter(isWrong).length };
   const [draft, setDraft] = useState<string | null>(null);
   const presets = useQuery({
-    queryKey: ["presets"],
+    queryKey: ["presets"], enabled: isAdmin,
     queryFn: async () => {
       const { data, error } = await supabase.from("email_presets").select("id, name, body").order("name");
       if (error) throw error;
@@ -111,10 +111,11 @@ function Admin() {
   });
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
+    const v = isMember ? "verificadas" : view;
     return (apps.data ?? []).filter((a) =>
-      (view === "todas" || (view === "verificadas" ? isVer(a) : view === "errados" ? isWrong(a) : isNew(a))) &&
+      (v === "todas" || (v === "verificadas" ? isVer(a) : v === "errados" ? isWrong(a) : isNew(a))) &&
       (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')));
-  }, [apps.data, q, view]);
+  }, [apps.data, q, view, isMember]);
   const open = apps.data?.find((a) => a.id === openId) ?? null;
 
   const signOut = async () => {
