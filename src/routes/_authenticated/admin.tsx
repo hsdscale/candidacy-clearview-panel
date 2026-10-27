@@ -349,7 +349,6 @@ function Detail({ app, member, busy, onWrong, onVerify, onUso, onReset, onDelete
           ))}
         </div>
       </div>
-      )}
 
       <div className="mt-6">
         <Row k="Email" v={<a className="text-navy underline" href={`mailto:${app.email}`}>{app.email}</a>} />
