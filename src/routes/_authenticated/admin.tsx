@@ -257,7 +257,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: boolean; onWrong: () => void; onVerify: (v: boolean) => void; onDeleted: () => void }) {
+function Detail({ app, member, busy, onWrong, onVerify, onDeleted }: { app: App; member: boolean; busy: boolean; onWrong: () => void; onVerify: (v: boolean) => void; onDeleted: () => void }) {
   const qc = useQueryClient();
   const [notes, setNotes] = useState(app.notes ?? "");
   const [saved, setSaved] = useState(false);
@@ -268,7 +268,8 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
     if (!error && data) window.open(data.signedUrl, "_blank");
   };
   const saveNotes = async () => {
-    await supabase.from("applications").update({ notes }).eq("id", app.id);
+    const r = await saveMemberNote({ data: { id: app.id, notes } }).catch(() => null);
+    if (!r) return alert("Não foi possível guardar a nota.");
     setSaved(true); setTimeout(() => setSaved(false), 1500);
     qc.invalidateQueries({ queryKey: ["apps"] });
   };
