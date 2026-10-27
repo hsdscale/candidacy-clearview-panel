@@ -150,6 +150,7 @@ function Admin() {
           <button onClick={signOut} className="inline-flex items-center gap-2 rounded-md border border-navy-foreground/30 px-3 py-2 text-sm hover:bg-navy-foreground/10">
             <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sair</span>
           </button>
+          </div>
         </div>
       </header>
 
