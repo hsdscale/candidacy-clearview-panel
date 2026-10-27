@@ -125,10 +125,10 @@ function Admin() {
   };
 
   if (role.isLoading) return <div className="p-10 text-center text-muted-foreground">A carregar...</div>;
-  if (!role.data?.admin) return (
+  if (!isAdmin && !isMember) return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-cream p-6 text-center">
       <h1 className="font-display text-2xl font-extrabold text-navy">Sem acesso</h1>
-      <p className="max-w-sm text-sm text-muted-foreground">A conta {role.data?.email} não tem permissão de administrador.</p>
+      <p className="max-w-sm text-sm text-muted-foreground">A conta {role.data?.email} ainda não tem permissão. Peça ao administrador para a autorizar no separador Utilizadores do painel.</p>
       <button onClick={signOut} className="rounded-md bg-navy px-5 py-2.5 text-sm font-semibold text-navy-foreground">Sair</button>
     </div>
   );
