@@ -313,9 +313,10 @@ function Detail({ app, member, busy, onWrong, onVerify, onDeleted }: { app: App;
             className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive px-4 py-3 text-sm font-semibold text-destructive disabled:opacity-60">
             <AlertTriangle className="h-4 w-4" /> {app.wrong_docs ? "Reenviar email de Doc Errado" : "Doc Errado — pedir novos documentos"}
           </button>
-        )}
+        ))}
       </div>
 
+      {!member && (
       <div className="mt-6">
         <p className="text-sm font-semibold text-navy">Ficheiros</p>
         <div className="mt-2 space-y-2">
