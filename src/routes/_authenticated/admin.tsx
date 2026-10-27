@@ -297,7 +297,7 @@ function Detail({ app, member, busy, onWrong, onVerify, onDeleted }: { app: App;
           <p className="text-sm font-semibold text-navy">Estado</p>
           <StatusBadge verified={app.verified} wrong={app.wrong_docs} />
         </div>
-        {app.verified ? (
+        {!member && (app.verified ? (
           <button onClick={() => onVerify(false)} disabled={busy}
             className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold text-navy disabled:opacity-60">
             <Undo2 className="h-4 w-4" /> Voltar a marcar como Novo
