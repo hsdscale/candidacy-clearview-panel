@@ -1,0 +1,2 @@
+ALTER TABLE public.applications ADD COLUMN uso boolean NOT NULL DEFAULT false;
+COMMENT ON COLUMN public.applications.uso IS 'Estado opcional «Em uso»: candidatura a tratar, mutuamente exclusiva com verified/wrong_docs na lógica da aplicação';

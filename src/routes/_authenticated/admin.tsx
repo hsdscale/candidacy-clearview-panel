@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote, Clock } from "lucide-react";
+import { isVer, isWrong, isUso, isNew } from "@/lib/app-state";
 import { markWrongDocs } from "@/lib/resubmit.functions";
 import { listTeamUsers, setMemberAccess, saveMemberNote } from "@/lib/team.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,14 +27,14 @@ type App = {
   hours: string | null; days: string[]; start_when: string | null; equipment: string[];
   experience: string | null; pt_level: string | null; strengths: string[]; why: string | null; level: string | null;
   cv_path: string | null; extra_path: string | null; morada_path: string | null; notes: string | null;
-  verified: boolean; wrong_docs: boolean;
+  verified: boolean; wrong_docs: boolean; uso: boolean;
 };
 
-function StatusBadge({ verified, wrong }: { verified: boolean; wrong?: boolean }) {
+function StatusBadge({ verified, wrong, uso }: { verified: boolean; wrong?: boolean; uso?: boolean }) {
   if (wrong && !verified) return <span className="inline-flex items-center gap-1 rounded-full bg-destructive px-2.5 py-0.5 text-xs font-semibold text-destructive-foreground"><AlertTriangle className="h-3 w-3" />Doc Errado</span>;
-  return verified ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-navy px-2.5 py-0.5 text-xs font-semibold text-navy-foreground"><Check className="h-3 w-3" />Verificado</span>
-  ) : (
+  if (verified) return <span className="inline-flex items-center gap-1 rounded-full bg-navy px-2.5 py-0.5 text-xs font-semibold text-navy-foreground"><Check className="h-3 w-3" />Verificado</span>;
+  if (uso) return <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-navy"><Clock className="h-3 w-3" />Em uso</span>;
+  return (
     <span className="inline-flex items-center rounded-full bg-amber px-2.5 py-0.5 text-xs font-semibold text-navy">Novo</span>
   );
 }
@@ -48,7 +49,7 @@ function Admin() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados" | "usuarios">("novas");
+  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados" | "uso" | "usuarios">("novas");
 
   const role = useQuery({
     queryKey: ["my-role"],
@@ -71,15 +72,31 @@ function Admin() {
 
   const setVerified = useMutation({
     mutationFn: async ({ id, verified }: { id: string; verified: boolean }) => {
-      const { error } = await supabase.from("applications").update(verified ? { verified, wrong_docs: false } : { verified }).eq("id", id);
+      const { error } = await supabase.from("applications").update(verified ? { verified, wrong_docs: false, uso: false } : { verified }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
   });
-  const isVer = (a: App) => a.verified;
-  const isWrong = (a: App) => !a.verified && a.wrong_docs;
-  const isNew = (a: App) => !a.verified && !a.wrong_docs;
-  const counts = { novas: (apps.data ?? []).filter(isNew).length, ver: (apps.data ?? []).filter(isVer).length, err: (apps.data ?? []).filter(isWrong).length };
+  const setUso = useMutation({
+    mutationFn: async ({ id, uso }: { id: string; uso: boolean }) => {
+      const { error } = await supabase.from("applications").update({ uso, verified: false, wrong_docs: false }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
+  });
+  const resetState = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("applications").update({ verified: false, uso: false, wrong_docs: false }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["apps"] }),
+  });
+  const counts = {
+    novas: (apps.data ?? []).filter(isNew).length,
+    uso: (apps.data ?? []).filter(isUso).length,
+    ver: (apps.data ?? []).filter(isVer).length,
+    err: (apps.data ?? []).filter(isWrong).length,
+  };
   const [draft, setDraft] = useState<string | null>(null);
   const presets = useQuery({
     queryKey: ["presets"], enabled: isAdmin,
@@ -114,7 +131,7 @@ function Admin() {
     const s = q.trim().toLowerCase();
     const v = isMember ? "verificadas" : view;
     return (apps.data ?? []).filter((a) =>
-      (v === "todas" || (v === "verificadas" ? isVer(a) : v === "errados" ? isWrong(a) : isNew(a))) &&
+      (v === "todas" || (v === "verificadas" ? isVer(a) : v === "errados" ? isWrong(a) : v === "uso" ? isUso(a) : isNew(a))) &&
       (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')));
   }, [apps.data, q, view, isMember]);
   const open = apps.data?.find((a) => a.id === openId) ?? null;
@@ -163,8 +180,8 @@ function Admin() {
         </div>
 
         {isAdmin && (
-        <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto sm:grid-cols-5">
-          {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err]] as const).map(([k, label, n]) => (
+        <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto sm:grid-cols-6">
+          {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err], ["uso", "Em uso", counts.uso]] as const).map(([k, label, n]) => (
             <Button variant="ghost" key={k} onClick={() => setView(k)}
               className={`h-auto rounded-lg px-4 py-2 text-sm font-semibold transition ${view === k ? "bg-navy text-navy-foreground hover:bg-navy hover:text-navy-foreground" : "text-navy hover:bg-muted"}`}>
               {label} <span className="opacity-70">({n})</span>
@@ -198,7 +215,7 @@ function Admin() {
                 </p>
               )}
               <div className="flex flex-wrap gap-1.5">
-                <StatusBadge verified={a.verified} wrong={a.wrong_docs} />
+                <StatusBadge verified={a.verified} wrong={a.wrong_docs} uso={a.uso} />
               </div>
               <p className="shrink-0 whitespace-nowrap text-xs tabular-nums text-muted-foreground">{fmtDate(a.created_at)}</p>
             </button>
@@ -209,7 +226,7 @@ function Admin() {
 
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {open && <Detail app={open} member={isMember} busy={setVerified.isPending || wrong.isPending} onWrong={() => setDraft(defaultWrongMessage(open.application_number))} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
+          {open && <Detail app={open} member={isMember} busy={setVerified.isPending || setUso.isPending || resetState.isPending || wrong.isPending} onWrong={() => setDraft(defaultWrongMessage(open.application_number))} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onUso={(u) => setUso.mutate({ id: open.id, uso: u })} onReset={() => resetState.mutate(open.id)} onDeleted={() => setOpenId(null)} />}
           {open && draft !== null && (
             <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40 p-3 sm:items-center">
               <div className="w-full max-w-lg rounded-2xl bg-background p-5 shadow-xl">
@@ -253,7 +270,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-function Detail({ app, member, busy, onWrong, onVerify, onDeleted }: { app: App; member: boolean; busy: boolean; onWrong: () => void; onVerify: (v: boolean) => void; onDeleted: () => void }) {
+function Detail({ app, member, busy, onWrong, onVerify, onUso, onReset, onDeleted }: { app: App; member: boolean; busy: boolean; onWrong: () => void; onVerify: (v: boolean) => void; onUso: (u: boolean) => void; onReset: () => void; onDeleted: () => void }) {
   const qc = useQueryClient();
   const [notes, setNotes] = useState(app.notes ?? "");
   const [saved, setSaved] = useState(false);
@@ -291,24 +308,33 @@ function Detail({ app, member, busy, onWrong, onVerify, onDeleted }: { app: App;
       <div className="mt-6 rounded-xl border border-border bg-cream p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-semibold text-navy">Estado</p>
-          <StatusBadge verified={app.verified} wrong={app.wrong_docs} />
+          <StatusBadge verified={app.verified} wrong={app.wrong_docs} uso={app.uso} />
         </div>
-        {!member && (app.verified ? (
-          <button onClick={() => onVerify(false)} disabled={busy}
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold text-navy disabled:opacity-60">
-            <Undo2 className="h-4 w-4" /> Voltar a marcar como Novo
-          </button>
-        ) : (
-          <button onClick={() => onVerify(true)} disabled={busy}
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-3 text-sm font-semibold text-navy-foreground disabled:opacity-60">
-            <Check className="h-4 w-4" /> Marcar como Verificado
-          </button>
-        ))}
-        {!member && !app.verified && (
-          <button onClick={onWrong} disabled={busy}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive px-4 py-3 text-sm font-semibold text-destructive disabled:opacity-60">
-            <AlertTriangle className="h-4 w-4" /> {app.wrong_docs ? "Reenviar email de Doc Errado" : "Doc Errado — pedir novos documentos"}
-          </button>
+        {!member && (
+          <>
+            {!app.verified && (
+              <button onClick={() => onVerify(true)} disabled={busy}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-3 text-sm font-semibold text-navy-foreground disabled:opacity-60">
+                <Check className="h-4 w-4" /> Marcar como Verificado
+              </button>
+            )}
+            {!app.uso && (
+              <button onClick={() => onUso(true)} disabled={busy}
+                className={`inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold text-navy disabled:opacity-60 ${app.verified ? "mt-3" : "mt-2"}`}>
+                <Clock className="h-4 w-4" /> Marcar como Em uso
+              </button>
+            )}
+            <button onClick={onWrong} disabled={busy}
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive px-4 py-3 text-sm font-semibold text-destructive disabled:opacity-60">
+              <AlertTriangle className="h-4 w-4" /> {app.wrong_docs ? "Reenviar email de Doc Errado" : "Doc Errado — pedir novos documentos"}
+            </button>
+            {(app.verified || app.uso || app.wrong_docs) && (
+              <button onClick={onReset} disabled={busy}
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold text-navy disabled:opacity-60">
+                <Undo2 className="h-4 w-4" /> Voltar a marcar como Novo
+              </button>
+            )}
+          </>
         )}
       </div>
 

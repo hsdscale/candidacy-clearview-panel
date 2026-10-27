@@ -71,6 +71,7 @@ export type Database = {
           resubmit_token: string | null
           start_when: string | null
           strengths: string[]
+          uso: boolean
           verified: boolean
           why: string | null
           wrong_docs: boolean
@@ -95,6 +96,7 @@ export type Database = {
           resubmit_token?: string | null
           start_when?: string | null
           strengths?: string[]
+          uso?: boolean
           verified?: boolean
           why?: string | null
           wrong_docs?: boolean
@@ -119,6 +121,7 @@ export type Database = {
           resubmit_token?: string | null
           start_when?: string | null
           strengths?: string[]
+          uso?: boolean
           verified?: boolean
           why?: string | null
           wrong_docs?: boolean
