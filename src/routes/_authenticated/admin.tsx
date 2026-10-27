@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote, Users } from "lucide-react";
 import { markWrongDocs } from "@/lib/resubmit.functions";
+import { listTeamUsers, setMemberAccess, saveMemberNote } from "@/lib/team.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -46,18 +47,21 @@ function Admin() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados">("novas");
+  const [view, setView] = useState<"todas" | "novas" | "verificadas" | "errados" | "usuarios">("novas");
 
   const role = useQuery({
-    queryKey: ["is-admin"],
+    queryKey: ["my-role"],
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id).eq("role", "admin");
-      return { admin: (data?.length ?? 0) > 0, email: u.user?.email };
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id);
+      const roles = (data ?? []).map((r) => r.role);
+      return { admin: roles.includes("admin"), member: roles.includes("user"), email: u.user?.email };
     },
   });
+  const isAdmin = !!role.data?.admin;
+  const isMember = !!role.data?.member && !isAdmin;
   const apps = useQuery({
-    queryKey: ["apps"], enabled: !!role.data?.admin,
+    queryKey: ["apps"], enabled: isAdmin || isMember,
     queryFn: async () => {
       const { data, error } = await supabase.from("applications").select("*").order("created_at", { ascending: false });
       if (error) throw error; return data as App[];
@@ -77,7 +81,7 @@ function Admin() {
   const counts = { novas: (apps.data ?? []).filter(isNew).length, ver: (apps.data ?? []).filter(isVer).length, err: (apps.data ?? []).filter(isWrong).length };
   const [draft, setDraft] = useState<string | null>(null);
   const presets = useQuery({
-    queryKey: ["presets"],
+    queryKey: ["presets"], enabled: isAdmin,
     queryFn: async () => {
       const { data, error } = await supabase.from("email_presets").select("id, name, body").order("name");
       if (error) throw error;
@@ -107,10 +111,11 @@ function Admin() {
   });
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
+    const v = isMember ? "verificadas" : view;
     return (apps.data ?? []).filter((a) =>
-      (view === "todas" || (view === "verificadas" ? isVer(a) : view === "errados" ? isWrong(a) : isNew(a))) &&
+      (v === "todas" || (v === "verificadas" ? isVer(a) : v === "errados" ? isWrong(a) : isNew(a))) &&
       (!s || a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s) || String(a.application_number) === s.replace(/^#/, '')));
-  }, [apps.data, q, view]);
+  }, [apps.data, q, view, isMember]);
   const open = apps.data?.find((a) => a.id === openId) ?? null;
 
   const signOut = async () => {
@@ -120,10 +125,10 @@ function Admin() {
   };
 
   if (role.isLoading) return <div className="p-10 text-center text-muted-foreground">A carregar...</div>;
-  if (!role.data?.admin) return (
+  if (!isAdmin && !isMember) return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-cream p-6 text-center">
       <h1 className="font-display text-2xl font-extrabold text-navy">Sem acesso</h1>
-      <p className="max-w-sm text-sm text-muted-foreground">A conta {role.data?.email} não tem permissão de administrador.</p>
+      <p className="max-w-sm text-sm text-muted-foreground">A conta {role.data?.email} ainda não tem permissão. Peça ao administrador para a autorizar no separador Utilizadores do painel.</p>
       <button onClick={signOut} className="rounded-md bg-navy px-5 py-2.5 text-sm font-semibold text-navy-foreground">Sair</button>
     </div>
   );
@@ -134,15 +139,26 @@ function Admin() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div>
             <p className="font-display text-xl font-bold">Alvanto</p>
-            <p className="text-xs opacity-80">Painel de candidaturas</p>
+            <p className="text-xs opacity-80">{isMember ? "Painel — Verificadas" : "Painel de candidaturas"}</p>
           </div>
+          <div className="flex items-center gap-2">
+          {isAdmin && (
+            <button onClick={() => setView(view === "usuarios" ? "novas" : "usuarios")} className="inline-flex items-center gap-2 rounded-md border border-navy-foreground/30 px-3 py-2 text-sm hover:bg-navy-foreground/10">
+              <Users className="h-4 w-4" /> <span className="hidden sm:inline">Utilizadores</span>
+            </button>
+          )}
           <button onClick={signOut} className="inline-flex items-center gap-2 rounded-md border border-navy-foreground/30 px-3 py-2 text-sm hover:bg-navy-foreground/10">
             <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sair</span>
           </button>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        {view === "usuarios" && isAdmin ? (
+          <TeamPanel />
+        ) : (
+        <>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">
             Candidaturas <span className="text-base font-semibold text-muted-foreground">({list.length})</span>
@@ -154,6 +170,7 @@ function Admin() {
           </div>
         </div>
 
+        {!isMember && (
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto">
           {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err]] as const).map(([k, label, n]) => (
             <button key={k} onClick={() => setView(k)}
@@ -162,6 +179,7 @@ function Admin() {
             </button>
           ))}
         </div>
+        )}
 
         <div className="mt-6 space-y-3">
           {apps.isLoading && <p className="text-muted-foreground">A carregar...</p>}
@@ -189,11 +207,13 @@ function Admin() {
             </button>
           ))}
         </div>
+        </>
+        )}
       </main>
 
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {open && <Detail app={open} busy={setVerified.isPending || wrong.isPending} onWrong={() => setDraft(defaultWrongMessage(open.application_number))} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
+          {open && <Detail app={open} member={isMember} busy={setVerified.isPending || wrong.isPending} onWrong={() => setDraft(defaultWrongMessage(open.application_number))} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
           {open && draft !== null && (
             <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40 p-3 sm:items-center">
               <div className="w-full max-w-lg rounded-2xl bg-background p-5 shadow-xl">
@@ -237,7 +257,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: boolean; onWrong: () => void; onVerify: (v: boolean) => void; onDeleted: () => void }) {
+function Detail({ app, member, busy, onWrong, onVerify, onDeleted }: { app: App; member: boolean; busy: boolean; onWrong: () => void; onVerify: (v: boolean) => void; onDeleted: () => void }) {
   const qc = useQueryClient();
   const [notes, setNotes] = useState(app.notes ?? "");
   const [saved, setSaved] = useState(false);
@@ -248,7 +268,8 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
     if (!error && data) window.open(data.signedUrl, "_blank");
   };
   const saveNotes = async () => {
-    await supabase.from("applications").update({ notes }).eq("id", app.id);
+    const r = await saveMemberNote({ data: { id: app.id, notes } }).catch(() => null);
+    if (!r) return alert("Não foi possível guardar a nota.");
     setSaved(true); setTimeout(() => setSaved(false), 1500);
     qc.invalidateQueries({ queryKey: ["apps"] });
   };
@@ -276,7 +297,7 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
           <p className="text-sm font-semibold text-navy">Estado</p>
           <StatusBadge verified={app.verified} wrong={app.wrong_docs} />
         </div>
-        {app.verified ? (
+        {!member && (app.verified ? (
           <button onClick={() => onVerify(false)} disabled={busy}
             className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold text-navy disabled:opacity-60">
             <Undo2 className="h-4 w-4" /> Voltar a marcar como Novo
@@ -286,8 +307,8 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
             className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-3 text-sm font-semibold text-navy-foreground disabled:opacity-60">
             <Check className="h-4 w-4" /> Marcar como Verificado
           </button>
-        )}
-        {!app.verified && (
+        ))}
+        {!member && !app.verified && (
           <button onClick={onWrong} disabled={busy}
             className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive px-4 py-3 text-sm font-semibold text-destructive disabled:opacity-60">
             <AlertTriangle className="h-4 w-4" /> {app.wrong_docs ? "Reenviar email de Doc Errado" : "Doc Errado — pedir novos documentos"}
@@ -295,6 +316,7 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
         )}
       </div>
 
+      {!member && (
       <div className="mt-6">
         <p className="text-sm font-semibold text-navy">Ficheiros</p>
         <div className="mt-2 space-y-2">
@@ -306,6 +328,7 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
           ))}
         </div>
       </div>
+      )}
 
       <div className="mt-6">
         <Row k="Email" v={<a className="text-navy underline" href={`mailto:${app.email}`}>{app.email}</a>} />
@@ -328,10 +351,54 @@ function Detail({ app, busy, onWrong, onVerify, onDeleted }: { app: App; busy: b
         <button onClick={saveNotes} className="mt-2 rounded-md bg-navy px-4 py-2 text-sm font-semibold text-navy-foreground">{saved ? "Guardado ✓" : "Guardar notas"}</button>
       </div>
 
+      {!member && (
       <button onClick={remove} className="mt-8 inline-flex items-center gap-2 text-sm text-destructive hover:underline">
         <Trash2 className="h-4 w-4" /> Apagar candidatura
       </button>
+      )}
     </>
+  );
+}
+
+function TeamPanel() {
+  const qc = useQueryClient();
+  const team = useQuery({ queryKey: ["team"], queryFn: () => listTeamUsers() });
+  const toggle = useMutation({
+    mutationFn: ({ userId, grant }: { userId: string; grant: boolean }) => setMemberAccess({ data: { userId, grant } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["team"] }),
+    onError: (e) => alert(e instanceof Error ? e.message : "Não foi possível alterar o acesso."),
+  });
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">Utilizadores</h1>
+      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+        Quem criar conta em /auth aparece aqui. Autorize o acesso para essa pessoa ver apenas as candidaturas Verificadas — sem poder editar, apagar ou descarregar ficheiros, apenas escrever observações.
+      </p>
+      <div className="mt-6 space-y-3">
+        {team.isLoading && <p className="text-muted-foreground">A carregar...</p>}
+        {team.error && <p className="text-destructive">Não foi possível carregar os utilizadores.</p>}
+        {(team.data ?? []).map((u) => (
+          <div key={u.id} className="flex flex-col gap-3 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center sm:gap-4">
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-semibold text-navy">{u.email}</p>
+              <p className="text-xs text-muted-foreground">Conta criada a {fmtDate(u.created_at)}</p>
+            </div>
+            {u.role === "admin" ? (
+              <span className="inline-flex w-fit items-center rounded-full bg-navy px-2.5 py-0.5 text-xs font-semibold text-navy-foreground">Administrador</span>
+            ) : (
+              <button
+                disabled={toggle.isPending}
+                onClick={() => toggle.mutate({ userId: u.id, grant: u.role !== "user" })}
+                className={`w-fit rounded-full px-4 py-2 text-xs font-semibold disabled:opacity-50 ${u.role === "user" ? "border border-destructive text-destructive" : "bg-navy text-navy-foreground"}`}
+              >
+                {u.role === "user" ? "Remover acesso" : "Autorizar acesso"}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
