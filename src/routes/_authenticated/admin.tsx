@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote, Users } from "lucide-react";
+import { Search, LogOut, Download, Trash2, FileText, Check, Undo2, AlertTriangle, StickyNote } from "lucide-react";
 import { markWrongDocs } from "@/lib/resubmit.functions";
 import { listTeamUsers, setMemberAccess, saveMemberNote } from "@/lib/team.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -142,11 +143,6 @@ function Admin() {
             <p className="text-xs opacity-80">{isMember ? "Painel — Verificadas" : "Painel de candidaturas"}</p>
           </div>
           <div className="flex items-center gap-2">
-          {isAdmin && (
-            <button onClick={() => setView(view === "usuarios" ? "novas" : "usuarios")} className="inline-flex items-center gap-2 rounded-md border border-navy-foreground/30 px-3 py-2 text-sm hover:bg-navy-foreground/10">
-              <Users className="h-4 w-4" /> <span className="hidden sm:inline">Utilizadores</span>
-            </button>
-          )}
           <button onClick={signOut} className="inline-flex items-center gap-2 rounded-md border border-navy-foreground/30 px-3 py-2 text-sm hover:bg-navy-foreground/10">
             <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sair</span>
           </button>
@@ -155,32 +151,33 @@ function Admin() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {view === "usuarios" && isAdmin ? (
-          <TeamPanel />
-        ) : (
-        <>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">
-            Candidaturas <span className="text-base font-semibold text-muted-foreground">({list.length})</span>
+            {view === "usuarios" && isAdmin ? "Uso" : <>Candidaturas <span className="text-base font-semibold text-muted-foreground">({list.length})</span></>}
           </h1>
-          <div className="relative w-full sm:w-72">
+          {view !== "usuarios" && <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar por número, nome ou email"
               className="w-full rounded-lg border border-border bg-background py-2.5 pl-9 pr-3 text-sm outline-none focus:border-navy" />
-          </div>
+          </div>}
         </div>
 
-        {!isMember && (
-        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto">
+        {isAdmin && (
+        <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl bg-background p-1.5 sm:inline-grid sm:w-auto sm:grid-cols-5">
           {([["todas", "Todas", apps.data?.length ?? 0], ["novas", "Novas", counts.novas], ["verificadas", "Verificadas", counts.ver], ["errados", "Doc Errado", counts.err]] as const).map(([k, label, n]) => (
-            <button key={k} onClick={() => setView(k)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${view === k ? "bg-navy text-navy-foreground" : "text-navy hover:bg-muted"}`}>
+            <Button variant="ghost" key={k} onClick={() => setView(k)}
+              className={`h-auto rounded-lg px-4 py-2 text-sm font-semibold transition ${view === k ? "bg-navy text-navy-foreground hover:bg-navy hover:text-navy-foreground" : "text-navy hover:bg-muted"}`}>
               {label} <span className="opacity-70">({n})</span>
-            </button>
+            </Button>
           ))}
+          <Button variant="ghost" onClick={() => setView("usuarios")}
+            className={`h-auto rounded-lg px-4 py-2 text-sm font-semibold transition ${view === "usuarios" ? "bg-navy text-navy-foreground hover:bg-navy hover:text-navy-foreground" : "text-navy hover:bg-muted"}`}>
+            Uso
+          </Button>
         </div>
         )}
 
+        {view === "usuarios" && isAdmin ? <TeamPanel /> : (
         <div className="mt-6 space-y-3">
           {apps.isLoading && <p className="text-muted-foreground">A carregar...</p>}
           {!apps.isLoading && list.length === 0 && (
@@ -207,7 +204,6 @@ function Admin() {
             </button>
           ))}
         </div>
-        </>
         )}
       </main>
 
@@ -371,7 +367,6 @@ function TeamPanel() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">Utilizadores</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
         Quem criar conta em /auth aparece aqui. Autorize o acesso para essa pessoa ver apenas as candidaturas Verificadas — sem poder editar, apagar ou descarregar ficheiros, apenas escrever observações.
       </p>
