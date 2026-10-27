@@ -57,6 +57,13 @@
       "when": 1793111284158,
       "tag": "0007_member_read_verified",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793112612992,
+      "tag": "0008_uso_state",
+      "breakpoints": true
     }
   ]
 }
