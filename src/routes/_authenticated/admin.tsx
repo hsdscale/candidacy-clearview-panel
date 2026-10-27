@@ -207,11 +207,13 @@ function Admin() {
             </button>
           ))}
         </div>
+        </>
+        )}
       </main>
 
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {open && <Detail app={open} busy={setVerified.isPending || wrong.isPending} onWrong={() => setDraft(defaultWrongMessage(open.application_number))} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
+          {open && <Detail app={open} member={isMember} busy={setVerified.isPending || wrong.isPending} onWrong={() => setDraft(defaultWrongMessage(open.application_number))} onVerify={(v) => setVerified.mutate({ id: open.id, verified: v })} onDeleted={() => setOpenId(null)} />}
           {open && draft !== null && (
             <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40 p-3 sm:items-center">
               <div className="w-full max-w-lg rounded-2xl bg-background p-5 shadow-xl">
