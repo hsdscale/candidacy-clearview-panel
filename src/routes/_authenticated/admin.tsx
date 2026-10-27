@@ -308,7 +308,7 @@ function Detail({ app, member, busy, onWrong, onVerify, onUso, onReset, onDelete
       <div className="mt-6 rounded-xl border border-border bg-cream p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-semibold text-navy">Estado</p>
-          <StatusBadge verified={app.verified} wrong={app.wrong_docs} />
+          <StatusBadge verified={app.verified} wrong={app.wrong_docs} uso={app.uso} />
         </div>
         {!member && (
           <>
