@@ -307,13 +307,13 @@ function Detail({ app, member, busy, onWrong, onVerify, onDeleted }: { app: App;
             className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-3 text-sm font-semibold text-navy-foreground disabled:opacity-60">
             <Check className="h-4 w-4" /> Marcar como Verificado
           </button>
-        )}
-        {!app.verified && (
+        ))}
+        {!member && !app.verified && (
           <button onClick={onWrong} disabled={busy}
             className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-destructive px-4 py-3 text-sm font-semibold text-destructive disabled:opacity-60">
             <AlertTriangle className="h-4 w-4" /> {app.wrong_docs ? "Reenviar email de Doc Errado" : "Doc Errado — pedir novos documentos"}
           </button>
-        ))}
+        )}
       </div>
 
       {!member && (
