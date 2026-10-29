@@ -1,5 +1,7 @@
 # Roteiro
 
+- [ ] Exportar documentos por grupo, só para administrador, em ZIP organizado por número e nome; verificar descarga real.
+
 - [x] Numerar candidaturas a partir de 1 no painel e nos emails
 
 - [x] Preparar envio de emails e modelo de aviso de nova candidatura
