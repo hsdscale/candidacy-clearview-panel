@@ -16,6 +16,8 @@ export const Route = createFileRoute("/candidatura")({
       },
       { property: "og:title", content: "Candidatura — Assistente de processamento de encomendas" },
       { property: "og:description", content: "Indique a sua disponibilidade e descubra o seu nível de remuneração." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Candidatura,
