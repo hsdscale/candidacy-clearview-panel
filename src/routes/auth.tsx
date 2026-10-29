@@ -10,6 +10,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesso privado ao painel de candidaturas da Alvanto." },
       { property: "og:title", content: "Entrar — Painel Alvanto" },
       { property: "og:description", content: "Acesso privado ao painel de candidaturas." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),

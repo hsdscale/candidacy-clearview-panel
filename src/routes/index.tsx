@@ -30,6 +30,8 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:title", content: "Estamos a recrutar — Assistente de processamento de encomendas" },
       { property: "og:description", content: "Função 100% remota em Portugal, pagamento semanal e horário flexível." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,

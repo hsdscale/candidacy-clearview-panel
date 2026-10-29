@@ -8,6 +8,7 @@ import { listTeamUsers, setMemberAccess, saveMemberNote } from "@/lib/team.funct
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { ApplicationExport } from "@/components/ApplicationExport";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -16,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "description", content: "Painel privado para gerir candidaturas." },
       { property: "og:title", content: "Painel de candidaturas — Alvanto" },
       { property: "og:description", content: "Painel privado de candidaturas." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -55,7 +58,8 @@ function Admin() {
     queryKey: ["my-role"],
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id);
+      if (!u.user) return { admin: false, member: false, email: undefined };
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
       const roles = (data ?? []).map((r) => r.role);
       return { admin: roles.includes("admin"), member: roles.includes("user"), email: u.user?.email };
     },
@@ -172,11 +176,13 @@ function Admin() {
           <h1 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">
             {view === "usuarios" && isAdmin ? "Uso" : <>Candidaturas <span className="text-base font-semibold text-muted-foreground">({list.length})</span></>}
           </h1>
-          {view !== "usuarios" && <div className="relative w-full sm:w-72">
+          {view !== "usuarios" && <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          {isAdmin && <ApplicationExport key={view + q} ids={list.map(a => a.id)} group={view} />}
+          <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar por número, nome ou email"
               className="w-full rounded-lg border border-border bg-background py-2.5 pl-9 pr-3 text-sm outline-none focus:border-navy" />
-          </div>}
+          </div></div>}
         </div>
 
         {isAdmin && (
