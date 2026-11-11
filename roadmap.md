@@ -1,5 +1,7 @@
 # Roteiro
 
+- [ ] Acrescentar selfie junto ao comprovativo de morada, guardar em privado e disponibilizar no painel e na exportação.
+
 - [x] Exportar documentos por grupo, só para administrador, em ZIP organizado por número e nome; descarga real confirmada.
 
 - [x] Numerar candidaturas a partir de 1 no painel e nos emails

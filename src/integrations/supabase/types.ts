@@ -69,6 +69,7 @@ export type Database = {
           phone: string | null
           pt_level: string | null
           resubmit_token: string | null
+          selfie_path: string | null
           start_when: string | null
           strengths: string[]
           uso: boolean
@@ -94,6 +95,7 @@ export type Database = {
           phone?: string | null
           pt_level?: string | null
           resubmit_token?: string | null
+          selfie_path?: string | null
           start_when?: string | null
           strengths?: string[]
           uso?: boolean
@@ -119,6 +121,7 @@ export type Database = {
           phone?: string | null
           pt_level?: string | null
           resubmit_token?: string | null
+          selfie_path?: string | null
           start_when?: string | null
           strengths?: string[]
           uso?: boolean

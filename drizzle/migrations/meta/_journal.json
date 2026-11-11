@@ -71,6 +71,13 @@
       "when": 1793137421686,
       "tag": "0009_member_read_verified_files",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794363061796,
+      "tag": "0010_application_selfie",
+      "breakpoints": true
     }
   ]
 }
