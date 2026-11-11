@@ -78,6 +78,13 @@
       "when": 1794363061796,
       "tag": "0010_application_selfie",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794363072916,
+      "tag": "0011_member_read_verified_selfie",
+      "breakpoints": true
     }
   ]
 }
