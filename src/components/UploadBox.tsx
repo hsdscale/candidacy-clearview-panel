@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import { UploadCloud, FileText, X, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { uploadError } from "@/lib/upload-validation";
 
-const MAX_BYTES = 10 * 1024 * 1024;
 const ACCEPT = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
-const OK_EXT = /\.(pdf|docx?|jpe?g|png)$/i;
 
 type Props = {
   title: string;
@@ -11,17 +11,19 @@ type Props = {
   onChange: (f: File | null) => void;
   error?: boolean;
   errorMsg?: string;
+  photoOnly?: boolean;
+  description?: string;
 };
 
-export function UploadBox({ title, file, onChange, error, errorMsg }: Props) {
+export function UploadBox({ title, file, onChange, error, errorMsg, photoOnly = false, description }: Props) {
   const ref = useRef<HTMLInputElement>(null);
   const [bad, setBad] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
 
   const pick = (f: File | undefined) => {
     if (!f) return;
-    if (!OK_EXT.test(f.name)) return setBad("Formato não suportado. Use PDF, DOC, DOCX, JPG ou PNG.");
-    if (f.size > MAX_BYTES) return setBad("O ficheiro excede o tamanho máximo de 10 MB.");
+    const problem = uploadError(f, photoOnly);
+    if (problem) return setBad(problem);
     setBad(null);
     onChange(f);
   };
@@ -33,6 +35,7 @@ export function UploadBox({ title, file, onChange, error, errorMsg }: Props) {
     <div>
       <div
         role="button"
+        aria-label={title}
         tabIndex={0}
         onClick={() => ref.current?.click()}
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), ref.current?.click())}
@@ -43,7 +46,7 @@ export function UploadBox({ title, file, onChange, error, errorMsg }: Props) {
           msg ? "border-destructive" : drag ? "border-navy bg-navy/5" : file ? "border-navy/40" : "border-border"
         }`}
       >
-        <input ref={ref} type="file" accept={ACCEPT} className="hidden" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ""; }} />
+        <input ref={ref} type="file" aria-label={title} accept={photoOnly ? ".jpg,.jpeg,.png" : ACCEPT} className="hidden" onChange={(e) => { pick(e.target.files?.[0]); e.target.value = ""; }} />
         {file ? (
           <>
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-navy/10 text-navy">
@@ -52,13 +55,14 @@ export function UploadBox({ title, file, onChange, error, errorMsg }: Props) {
             <p className="mt-4 font-semibold text-navy">{title}</p>
             <p className="mt-2 max-w-full truncate text-sm text-muted-foreground">{file.name}</p>
             <p className="mt-1 text-xs text-muted-foreground">{size}</p>
-            <button
+            <Button
+              variant="link"
               type="button"
               onClick={(e) => { e.stopPropagation(); onChange(null); }}
               className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-destructive hover:underline"
             >
               <X className="h-4 w-4" /> Remover
-            </button>
+            </Button>
           </>
         ) : (
           <>
@@ -66,8 +70,8 @@ export function UploadBox({ title, file, onChange, error, errorMsg }: Props) {
               <UploadCloud className="h-6 w-6" />
             </span>
             <p className="mt-4 font-semibold text-navy">{title}</p>
-            <p className="mt-2 text-sm text-muted-foreground">Escolha um ficheiro ou tire uma fotografia</p>
-            <p className="mt-1 text-xs text-muted-foreground">PDF, DOC, JPG ou PNG · Máx. 10 MB</p>
+            <p className="mt-2 text-sm text-muted-foreground">{description ?? "Escolha um ficheiro ou tire uma fotografia"}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{photoOnly ? "JPG ou PNG" : "PDF, DOC, JPG ou PNG"} · Máx. 10 MB</p>
           </>
         )}
       </div>

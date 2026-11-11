@@ -21,7 +21,7 @@ export const Route = createFileRoute("/reenviar/$token")({
   component: Resubmit,
 });
 
-type Info = { firstName: string; number: number; folder: string | null } | null;
+type Info = { firstName: string; number: number; folder: string | null; needsSelfie: boolean } | null;
 
 function Resubmit() {
   const { token } = Route.useParams();
@@ -29,6 +29,7 @@ function Resubmit() {
   const [cv, setCv] = useState<File | null>(null);
   const [extra, setExtra] = useState<File | null>(null);
   const [morada, setMorada] = useState<File | null>(null);
+  const [selfie, setSelfie] = useState<File | null>(null);
   const [tried, setTried] = useState(false);
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
@@ -48,13 +49,14 @@ function Resubmit() {
 
   const send = async () => {
     setTried(true); setErr("");
-    if (!cv || !extra || !morada || !info?.folder) return;
+    if (!cv || !extra || !morada || !info?.folder || (info.needsSelfie && !selfie)) return;
     setSending(true);
     try {
-      const [p1, p2, p3] = await Promise.all([
+      const [p1, p2, p3, p4] = await Promise.all([
         upload(info.folder, "curriculo", cv), upload(info.folder, "carta-ou-certificado", extra), upload(info.folder, "comprovativo-morada", morada),
+        selfie ? upload(info.folder, "selfie", selfie) : Promise.resolve(undefined),
       ]);
-      const r = await completeResubmit({ data: { token, cv: p1, extra: p2, morada: p3 } });
+      const r = await completeResubmit({ data: { token, cv: p1, extra: p2, morada: p3, selfie: p4 } });
       if (!r.ok) throw new Error();
       setDone(true); window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
@@ -93,6 +95,7 @@ function Resubmit() {
               <UploadBox title="Currículo (CV)" file={cv} onChange={setCv} error={tried && !cv} />
               <UploadBox title="Carta de apresentação ou certificado" file={extra} onChange={setExtra} error={tried && !extra} />
               <UploadBox title="Comprovativo de morada" file={morada} onChange={setMorada} error={tried && !morada} />
+              {info.needsSelfie && <UploadBox title="Fotografia do rosto (selfie)" file={selfie} onChange={setSelfie} error={tried && !selfie} photoOnly description="Envie uma fotografia recente sua, com o rosto bem visível." />}
             </div>
             {err && <p className="mt-4 text-sm font-medium text-destructive">{err}</p>}
             <button onClick={send} disabled={sending}

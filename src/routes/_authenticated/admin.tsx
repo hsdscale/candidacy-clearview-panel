@@ -29,7 +29,7 @@ type App = {
   id: string; application_number: number; created_at: string; name: string; email: string; phone: string | null;
   hours: string | null; days: string[]; start_when: string | null; equipment: string[];
   experience: string | null; pt_level: string | null; strengths: string[]; why: string | null; level: string | null;
-  cv_path: string | null; extra_path: string | null; morada_path: string | null; notes: string | null;
+  cv_path: string | null; extra_path: string | null; morada_path: string | null; selfie_path: string | null; notes: string | null;
   verified: boolean; wrong_docs: boolean; uso: boolean;
 };
 
@@ -294,14 +294,14 @@ function Detail({ app, member, busy, onWrong, onVerify, onUso, onReset, onDelete
   };
   const remove = async () => {
     if (!confirm(`Apagar a candidatura de ${app.name}? Esta ação não pode ser desfeita.`)) return;
-    const paths = [app.cv_path, app.extra_path, app.morada_path].filter(Boolean) as string[];
+    const paths = [app.cv_path, app.extra_path, app.morada_path, app.selfie_path].filter(Boolean) as string[];
     if (paths.length) await supabase.storage.from("candidaturas").remove(paths);
     await supabase.from("applications").delete().eq("id", app.id);
     qc.invalidateQueries({ queryKey: ["apps"] });
     onDeleted();
   };
 
-  const files: [string, string | null][] = [["Currículo (CV)", app.cv_path], ["Carta de apresentação ou certificado", app.extra_path], ["Comprovativo de morada", app.morada_path]];
+  const files: [string, string | null][] = [["Currículo (CV)", app.cv_path], ["Carta de apresentação ou certificado", app.extra_path], ["Comprovativo de morada", app.morada_path], ["Fotografia do rosto (selfie)", app.selfie_path]];
 
   return (
     <>

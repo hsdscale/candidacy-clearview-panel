@@ -6,7 +6,7 @@ export async function prepareExportBatch(client: SupabaseClient<Database>, userI
   const { data: admin, error: roleError } = await client.rpc('has_role', { _user_id: userId, _role: 'admin' });
   if (roleError || !admin) throw new Error('Só o administrador pode exportar candidaturas.');
   const { data: apps, error } = await client.from('applications')
-    .select('id, application_number, name, verified, wrong_docs, uso, cv_path, extra_path, morada_path')
+    .select('id, application_number, name, verified, wrong_docs, uso, cv_path, extra_path, morada_path, selfie_path')
     .in('id', ids).order('application_number');
   if (error) throw new Error('Não foi possível carregar as candidaturas.');
   if (apps.length !== new Set(ids).size || apps.some(a => !matchesExportGroup(a, group))) {

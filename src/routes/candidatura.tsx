@@ -125,6 +125,7 @@ function Candidatura() {
   const [cv, setCv] = useState<File | null>(null);
   const [extra, setExtra] = useState<File | null>(null);
   const [morada, setMorada] = useState<File | null>(null);
+  const [selfie, setSelfie] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [tried, setTried] = useState(false);
   const [sending, setSending] = useState(false);
@@ -148,13 +149,14 @@ function Candidatura() {
     cv: !cv,
     extra: !extra,
     morada: !morada,
+    selfie: !selfie,
   };
   const stepKeys: Record<number, (keyof typeof errs)[]> = {
     1: ["hours", "days", "start", "equip"],
     2: ["exp", "pt", "strengths", "why"],
     3: ["name", "email", "agree"],
     4: ["cv", "extra"],
-    5: ["morada"],
+    5: ["morada", "selfie"],
   };
   const show = (k: keyof typeof errs) => tried && errs[k];
   const level =
@@ -180,7 +182,7 @@ function Candidatura() {
       return;
     }
     if (step >= TOTAL) {
-      if (sending || !cv || !extra || !morada) return;
+      if (sending || !cv || !extra || !morada || !selfie) return;
       setSending(true);
       setSendErr(null);
       try {
@@ -200,6 +202,7 @@ function Candidatura() {
           cv,
           extra,
           morada,
+          selfie,
         });
         trackPixel("Lead");
         trackPixel("CompleteRegistration");
@@ -603,19 +606,28 @@ function Candidatura() {
               Assistente de processamento de encomendas
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              Comprovativo de morada
+              Comprovativo de morada e selfie
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
               Envie documentos nítidos e legíveis para a nossa equipa de verificação.
             </p>
 
-            <div className="mt-10">
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
               <UploadBox
                 title="Comprovativo de morada"
                 file={morada}
                 onChange={setMorada}
                 error={show("morada")}
                 errorMsg="Envie o seu comprovativo de morada."
+              />
+              <UploadBox
+                title="Fotografia do rosto (selfie)"
+                description="Envie uma fotografia recente sua, com o rosto bem visível, para ajudar a confirmar a sua identidade."
+                file={selfie}
+                onChange={setSelfie}
+                error={show("selfie")}
+                errorMsg="Envie uma fotografia do seu rosto (selfie)."
+                photoOnly
               />
             </div>
 
