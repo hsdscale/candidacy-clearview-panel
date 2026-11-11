@@ -28,7 +28,7 @@ export async function findByToken(token: string) {
   return data;
 }
 
-export async function finishResubmit(token: string, paths: { cv: string; extra: string; morada: string; selfie?: string }) {
+export async function finishResubmit(token: string, paths: { cv: string; extra: string; morada: string; selfie?: string | undefined }) {
   const app = await findByToken(token);
   if (!app) return { ok: false };
   if (app.selfie_path && !paths.selfie) throw new Error('Envie uma nova selfie.');
