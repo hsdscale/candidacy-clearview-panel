@@ -1,6 +1,6 @@
 # Roteiro
 
-- [ ] Acrescentar selfie junto ao comprovativo de morada, guardar em privado e disponibilizar no painel e na exportação.
+- [x] Acrescentar selfie junto ao comprovativo de morada, guardar em privado e disponibilizar no painel e na exportação; envio e leitura real confirmados.
 
 - [x] Exportar documentos por grupo, só para administrador, em ZIP organizado por número e nome; descarga real confirmada.
 
