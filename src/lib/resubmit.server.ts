@@ -23,20 +23,22 @@ export async function markWrongDocsAndEmail(id: string, message?: string) {
 
 export async function findByToken(token: string) {
   const { data, error } = await supabaseAdmin.from('applications')
-    .select('id, name, application_number, cv_path').eq('resubmit_token', token).maybeSingle();
+    .select('id, name, application_number, cv_path, selfie_path').eq('resubmit_token', token).maybeSingle();
   if (error) throw new Error('Erro ao verificar o link');
   return data;
 }
 
-export async function finishResubmit(token: string, paths: { cv: string; extra: string; morada: string }) {
+export async function finishResubmit(token: string, paths: { cv: string; extra: string; morada: string; selfie?: string }) {
   const app = await findByToken(token);
   if (!app) return { ok: false };
+  if (app.selfie_path && !paths.selfie) throw new Error('Envie uma nova selfie.');
   const folder = folderOf(app.cv_path);
-  if (!folder || ![paths.cv, paths.extra, paths.morada].every((p) => p.startsWith(`${folder}/`) && !p.includes('..'))) {
+  if (!folder || ![paths.cv, paths.extra, paths.morada, ...(paths.selfie ? [paths.selfie] : [])].every((p) => p.startsWith(`${folder}/`) && !p.includes('..'))) {
     throw new Error('Ficheiros inválidos');
   }
   const { error } = await supabaseAdmin.from('applications').update({
     cv_path: paths.cv, extra_path: paths.extra, morada_path: paths.morada,
+    ...(paths.selfie ? { selfie_path: paths.selfie } : {}),
     wrong_docs: false, verified: false, resubmit_token: null,
   }).eq('id', app.id);
   if (error) throw new Error('Não foi possível guardar');

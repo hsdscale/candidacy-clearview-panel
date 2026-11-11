@@ -12,6 +12,13 @@ function client(admin: boolean, rows: ExportCandidate[] = [app]) {
 }
 
 describe('Admin document exports', () => {
+  it('includes the selfie in the same numbered candidature folder', async () => {
+    const c = client(true, [{ ...app, selfie_path: 'folder/selfie.jpg' }]);
+    const [entry] = await prepareExportBatch(c.value, 'admin', [app.id], 'verificadas');
+    expect(entry?.folder).toBe('000061_Joao-Silva');
+    expect(entry?.files.map(f => f.filename)).toContain('04_Selfie.jpg');
+    expect(c.sign).toHaveBeenCalledWith('folder/selfie.jpg', 600);
+  });
   it('refuses member access before reading candidatures or signing files', async () => {
     const c = client(false);
     await expect(prepareExportBatch(c.value, 'member', [app.id], 'verificadas')).rejects.toThrow('Só o administrador');

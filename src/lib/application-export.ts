@@ -7,7 +7,7 @@ export const exportLabels: Record<ExportGroup, string> = {
 };
 export type ExportCandidate = AppLike & {
   id: string; application_number: number; name: string;
-  cv_path: string | null; extra_path: string | null; morada_path: string | null;
+  cv_path: string | null; extra_path: string | null; morada_path: string | null; selfie_path?: string | null;
 };
 export type ExportEntry = {
   id: string; number: number; name: string; state: string; folder: string;
@@ -28,7 +28,7 @@ export function candidateFolder(app: Pick<ExportCandidate, 'application_number' 
 }
 
 export function candidateDocuments(app: ExportCandidate) {
-  return ([['01_Curriculo', app.cv_path], ['02_Carta-ou-certificado', app.extra_path], ['03_Comprovativo-morada', app.morada_path]] as const).map(([label, path]) => {
+  return ([['01_Curriculo', app.cv_path], ['02_Carta-ou-certificado', app.extra_path], ['03_Comprovativo-morada', app.morada_path], ...(app.selfie_path ? [['04_Selfie', app.selfie_path] as const] : [])] as const).map(([label, path]) => {
     const ext = path?.split('.').pop()?.toLowerCase();
     return { label, path, filename: `${label}.${ext && /^[a-z0-9]{1,8}$/.test(ext) ? ext : 'bin'}` };
   });
