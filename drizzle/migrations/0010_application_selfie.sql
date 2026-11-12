@@ -1,2 +1,0 @@
-ALTER TABLE public.applications ADD COLUMN selfie_path text;
-COMMENT ON COLUMN public.applications.selfie_path IS 'Private candidate selfie stored alongside the application documents; nullable for existing applications.';
