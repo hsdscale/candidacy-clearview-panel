@@ -80,10 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Estamos a recrutar — Trabalho remoto em Portugal" },
-      { name: "description", content: "Assistente de processamento de encomendas, 100% remoto em Portugal." },
-      { property: "og:title", content: "Estamos a recrutar — Trabalho remoto em Portugal" },
-      { property: "og:description", content: "Assistente de processamento de encomendas, 100% remoto em Portugal." },
+      { title: "Alvanto Careers — Remote Work in the United Kingdom" },
+      { name: "description", content: "Order processing assistant, fully remote in the United Kingdom." },
+      { property: "og:title", content: "Alvanto Careers — Remote Work in the United Kingdom" },
+      { property: "og:description", content: "Order processing assistant, fully remote in the United Kingdom." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -103,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-GB">
       <head>
         <HeadContent />
       </head>

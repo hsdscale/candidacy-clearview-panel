@@ -9,10 +9,10 @@ import logo from "@/assets/logo.webp";
 export const Route = createFileRoute("/reenviar/$token")({
   head: () => ({
     meta: [
-      { title: "Reenviar documentos — Alvanto" },
-      { name: "description", content: "Volte a enviar os documentos da sua candidatura à Alvanto." },
-      { property: "og:title", content: "Reenviar documentos — Alvanto" },
-      { property: "og:description", content: "Volte a enviar os documentos da sua candidatura." },
+      { title: "Resubmit documents — Alvanto" },
+      { name: "description", content: "Resubmit the documents for your Alvanto application." },
+      { property: "og:title", content: "Resubmit documents — Alvanto" },
+      { property: "og:description", content: "Resubmit your application documents." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -60,7 +60,7 @@ function Resubmit() {
       if (!r.ok) throw new Error();
       setDone(true); window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      setErr("Não foi possível enviar. Verifique a ligação e tente novamente.");
+      setErr("We could not send your documents. Check your connection and try again.");
     } finally { setSending(false); }
   };
 
@@ -72,35 +72,35 @@ function Resubmit() {
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-        {info === undefined && <p className="text-center text-muted-foreground">A carregar...</p>}
+        {info === undefined && <p className="text-center text-muted-foreground">Loading...</p>}
         {info === null && !done && (
           <div className="rounded-2xl border border-border bg-background p-8 text-center">
-            <h1 className="font-display text-2xl font-extrabold text-navy">Link inválido ou já utilizado</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Este link já não está ativo. Se recebeu um pedido novo, use o link do email mais recente.</p>
+            <h1 className="font-display text-2xl font-extrabold text-navy">Invalid or already used link</h1>
+            <p className="mt-2 text-sm text-muted-foreground">This link is no longer active. If you received a new request, use the link in the latest email.</p>
           </div>
         )}
         {done && (
           <div className="rounded-2xl border border-border bg-background p-8 text-center">
             <CheckCircle2 className="mx-auto h-12 w-12 text-navy" />
-            <h1 className="mt-4 font-display text-2xl font-extrabold text-navy">Documentos recebidos</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Obrigado! A nossa equipa irá analisar os novos documentos e entraremos em contacto se for necessário.</p>
+            <h1 className="mt-4 font-display text-2xl font-extrabold text-navy">Documents received</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Thank you! Our team will review the new documents and contact you if necessary.</p>
           </div>
         )}
         {info && !done && (
           <div className="rounded-2xl border border-border bg-background p-5 sm:p-8">
-            <p className="text-sm font-semibold text-navy">Candidatura n.º {info.number}</p>
-            <h1 className="mt-1 font-display text-2xl font-extrabold text-navy sm:text-3xl">Reenviar documentos</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Olá {info.firstName}, envie novamente documentos nítidos e legíveis.</p>
+            <p className="text-sm font-semibold text-navy">Application # {info.number}</p>
+            <h1 className="mt-1 font-display text-2xl font-extrabold text-navy sm:text-3xl">Resubmit documents</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Hello {info.firstName}, please upload clear, legible documents again.</p>
             <div className="mt-6 space-y-4">
-              <UploadBox title="Currículo (CV)" file={cv} onChange={setCv} error={tried && !cv} />
-              <UploadBox title="Carta de apresentação ou certificado" file={extra} onChange={setExtra} error={tried && !extra} />
-              <UploadBox title="Comprovativo de morada" file={morada} onChange={setMorada} error={tried && !morada} />
-              {info.needsSelfie && <UploadBox title="Fotografia do rosto (selfie)" file={selfie} onChange={setSelfie} error={tried && !selfie} photoOnly description="Envie uma fotografia recente sua, com o rosto bem visível." />}
+              <UploadBox title="Identity document — front" file={cv} onChange={setCv} error={tried && !cv} />
+              <UploadBox title="Identity document — back" file={extra} onChange={setExtra} error={tried && !extra} />
+              <UploadBox title="Proof of UK address" file={morada} onChange={setMorada} error={tried && !morada} />
+              {info.needsSelfie && <UploadBox title="Photo of your face (selfie)" file={selfie} onChange={setSelfie} error={tried && !selfie} photoOnly description="Upload a recent photo of yourself with your face clearly visible." />}
             </div>
             {err && <p className="mt-4 text-sm font-medium text-destructive">{err}</p>}
             <button onClick={send} disabled={sending}
               className="mt-6 w-full rounded-lg bg-navy px-6 py-3.5 text-sm font-semibold text-navy-foreground disabled:opacity-60">
-              {sending ? "A enviar..." : "Enviar documentos"}
+              {sending ? "Sending..." : "Enviar documentos"}
             </button>
           </div>
         )}

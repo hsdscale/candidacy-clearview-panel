@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/integrations/supabase/client.server';
 /** Caller must already be verified as admin. Lists all auth accounts with their role. */
 export async function listTeam() {
   const { data, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
-  if (error) throw new Error('Erro ao listar utilizadores');
+  if (error) throw new Error('Could not list team members');
   const { data: roles } = await supabaseAdmin.from('user_roles').select('user_id, role');
   return data.users
     .map((u) => ({
@@ -18,13 +18,13 @@ export async function listTeam() {
 /** Caller must already be verified as admin. Grants or revokes the limited 'user' role. Never touches admins. */
 export async function setMemberAccess(userId: string, grant: boolean) {
   const { data: roles } = await supabaseAdmin.from('user_roles').select('role').eq('user_id', userId);
-  if (roles?.some((r) => r.role === 'admin')) throw new Error('Não é possível alterar um administrador');
+  if (roles?.some((r) => r.role === 'admin')) throw new Error('Cannot change administrator access');
   if (grant) {
     const { error } = await supabaseAdmin.from('user_roles').insert({ user_id: userId, role: 'user' });
-    if (error) throw new Error('Não foi possível dar acesso');
+    if (error) throw new Error('Could not grant access');
   } else {
     const { error } = await supabaseAdmin.from('user_roles').delete().eq('user_id', userId).eq('role', 'user');
-    if (error) throw new Error('Não foi possível remover o acesso');
+    if (error) throw new Error('Could not remove access');
   }
   return { ok: true };
 }
@@ -37,7 +37,7 @@ export async function saveNote(id: string, notes: string, asAdmin: boolean) {
   let q = supabaseAdmin.from('applications').update({ notes }).eq('id', id);
   if (!asAdmin) q = q.eq('verified', true);
   const { data, error } = await q.select('id');
-  if (error) throw new Error('Não foi possível guardar a nota');
-  if (!data?.length) throw new Error('Sem permissão para editar esta candidatura');
+  if (error) throw new Error('Could not save the note');
+  if (!data?.length) throw new Error('You do not have permission to edit this application');
   return { ok: true };
 }

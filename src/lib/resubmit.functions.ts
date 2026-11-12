@@ -7,7 +7,7 @@ export const markWrongDocs = createServerFn({ method: 'POST' })
   .inputValidator((i: unknown) => z.object({ id: z.string().uuid(), message: z.string().trim().min(5).max(3000) }).parse(i))
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc('has_role', { _user_id: context.userId, _role: 'admin' });
-    if (!isAdmin) throw new Error('Sem permissão');
+    if (!isAdmin) throw new Error('Permission denied');
     const { markWrongDocsAndEmail } = await import('./resubmit.server');
     return markWrongDocsAndEmail(data.id, data.message);
   });

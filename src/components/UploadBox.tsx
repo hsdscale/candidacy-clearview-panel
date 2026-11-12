@@ -28,7 +28,7 @@ export function UploadBox({ title, file, onChange, error, errorMsg, photoOnly = 
     onChange(f);
   };
 
-  const msg = bad ?? (error && !file ? (errorMsg ?? "Por favor, envie um ficheiro.") : null);
+  const msg = bad ?? (error && !file ? (errorMsg ?? "Please upload a file.") : null);
   const size = file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "";
 
   return (
@@ -61,7 +61,7 @@ export function UploadBox({ title, file, onChange, error, errorMsg, photoOnly = 
               onClick={(e) => { e.stopPropagation(); onChange(null); }}
               className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-destructive hover:underline"
             >
-              <X className="h-4 w-4" /> Remover
+              <X className="h-4 w-4" /> Remove
             </Button>
           </>
         ) : (
@@ -70,8 +70,8 @@ export function UploadBox({ title, file, onChange, error, errorMsg, photoOnly = 
               <UploadCloud className="h-6 w-6" />
             </span>
             <p className="mt-4 font-semibold text-navy">{title}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{description ?? "Escolha um ficheiro ou tire uma fotografia"}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{photoOnly ? "JPG ou PNG" : "PDF, DOC, JPG ou PNG"} · Máx. 10 MB</p>
+            <p className="mt-2 text-sm text-muted-foreground">{description ?? "Choose a file or take a photo"}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{photoOnly ? "JPG or PNG" : "PDF, DOC, JPG or PNG"} · Max. 10 MB</p>
           </>
         )}
       </div>

@@ -9,13 +9,13 @@ import logo from "@/assets/logo.webp";
 export const Route = createFileRoute("/candidatura")({
   head: () => ({
     meta: [
-      { title: "Candidatura — Assistente de processamento de encomendas" },
+      { title: "Apply — Alvanto Order Processing Assistant" },
       {
         name: "description",
-        content: "Preencha a sua candidatura para a função remota de assistente de processamento de encomendas.",
+        content: "Apply for the remote order processing assistant role at Alvanto in the United Kingdom.",
       },
-      { property: "og:title", content: "Candidatura — Assistente de processamento de encomendas" },
-      { property: "og:description", content: "Indique a sua disponibilidade e descubra o seu nível de remuneração." },
+      { property: "og:title", content: "Apply — Alvanto Order Processing Assistant" },
+      { property: "og:description", content: "Tell us your availability and find your pay level." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -25,18 +25,18 @@ export const Route = createFileRoute("/candidatura")({
 
 const TOTAL = 5;
 const HOURS: [string, string][] = [
-  ["2-4 horas", "3 467–5 280 €/mês"],
-  ["4-6 horas", "5 200–7 920 €/mês"],
-  ["6-8 horas", "6 933–10 560 €/mês"],
-  ["8+ horas", "Até 10 560 €/mês"],
+  ["2–4 hours", "£3,467–5,280/month"],
+  ["4–6 hours", "£5,200–7,920/month"],
+  ["6–8 hours", "£6,933–10,560/month"],
+  ["8+ hours", "Up to £10,560/month"],
 ];
-const DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-const START = ["De imediato", "Dentro de uma semana", "Dentro de 2 a 4 semanas", "Daqui a mais de um mês"];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const START = ["Immediately", "Within a week", "Within 2 to 4 weeks", "In more than a month"];
 const EQUIP = [
-  "Computador portátil ou de secretária",
-  "Telemóvel",
-  "Ligação estável à Internet",
-  "Espaço de trabalho tranquilo",
+  "Laptop or desktop computer",
+  "Mobile phone",
+  "Stable internet connection",
+  "Quiet workspace",
 ];
 
 function Radio({ on }: { on: boolean }) {
@@ -68,22 +68,22 @@ function Group({
       {children}
       {error && (
         <p role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" /> {msg ?? "Por favor, selecione uma opção."}
+          <AlertCircle className="h-4 w-4 shrink-0" /> {msg ?? "Please select an option."}
         </p>
       )}
     </fieldset>
   );
 }
 
-const EXP = ["Sem experiência direta", "Alguma experiência relevante", "Experiência sólida na área"];
-const PT = ["Língua materna", "Fluente", "Bom nível de escrita", "Básico"];
+const EXP = ["No direct experience", "Some relevant experience", "Strong experience in the field"];
+const PT = ["Native speaker", "Fluent", "Good written skills", "Basic"];
 const STRENGTHS = [
-  "Atenção ao detalhe",
-  "Comunicação",
-  "Organização",
-  "Conhecimentos de informática",
-  "Resolução de problemas",
-  "Gestão do tempo",
+  "Attention to detail",
+  "Communication",
+  "Organisation",
+  "Computer skills",
+  "Problem-solving",
+  "Time management",
 ];
 const MIN_TEXT = 20;
 const MAX_TEXT = 1500;
@@ -161,10 +161,10 @@ function Candidatura() {
   const show = (k: keyof typeof errs) => tried && errs[k];
   const level =
     exp === EXP[2]
-      ? "Nível avançado · 60 – 65 €/hora"
+      ? "Advanced level · 60 – £65/hour"
       : exp === EXP[1]
-        ? "Nível intermédio · 50 – 55 €/hora"
-        : "Nível inicial · 40 – 45 €/hora";
+        ? "Intermediate level · 50 – £55/hour"
+        : "Entry level · 40 – £45/hour";
 
   const go = (s: number) => {
     setTried(false);
@@ -210,7 +210,7 @@ function Candidatura() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (e) {
         console.error(e);
-        setSendErr("Não foi possível enviar a candidatura. Verifique a ligação e tente novamente.");
+        setSendErr("We could not submit your application. Check your connection and try again.");
       } finally {
         setSending(false);
       }
@@ -227,16 +227,16 @@ function Candidatura() {
             <img src={logo} alt="Alvanto" className="h-[24px] w-auto" width={300} height={92} />
           </Link>
           <Link to="/" className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-medium text-muted-foreground hover:text-navy sm:text-sm">
-            <ArrowLeft className="h-4 w-4" /> Voltar à vaga
+            <ArrowLeft className="h-4 w-4" /> Back to the role
           </Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <div className="flex items-center justify-between text-sm font-medium text-navy">
-          <span>Candidatura</span>
+          <span>Application</span>
           <span>
-            Etapa {step} de {TOTAL}
+            Step {step} of {TOTAL}
           </span>
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
@@ -249,17 +249,17 @@ function Candidatura() {
         {step === 1 ? (
           <>
             <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">
-              Assistente de processamento de encomendas
+              Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              A sua disponibilidade
+              Your availability
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              As suas respostas ajudam-nos a identificar o nível de remuneração adequado ao seu perfil.
+              Your answers help us identify the pay level that suits your profile.
             </p>
 
             <div className="mt-10 space-y-8">
-              <Group title="Quantas horas pode trabalhar por dia?" error={show("hours")}>
+              <Group title="How many hours can you work each day?" error={show("hours")}>
                 <div className="space-y-3">
                   {HOURS.map(([h, v]) => (
                     <button
@@ -277,7 +277,7 @@ function Candidatura() {
                 </div>
               </Group>
 
-              <Group title="Em que dias tem disponibilidade?" error={show("days")}>
+              <Group title="Which days are you available?" error={show("days")}>
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {DAYS.map((d) => (
                     <button
@@ -294,7 +294,7 @@ function Candidatura() {
                 </div>
               </Group>
 
-              <Group title="Quando pode começar?" error={show("start")}>
+              <Group title="When can you start?" error={show("start")}>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {START.map((s) => (
                     <button
@@ -311,7 +311,7 @@ function Candidatura() {
                 </div>
               </Group>
 
-              <Group title="Que equipamento tem em casa?" error={show("equip")}>
+              <Group title="What equipment do you have at home?" error={show("equip")}>
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {EQUIP.map((e) => (
                     <button
@@ -335,24 +335,24 @@ function Candidatura() {
                 onClick={next}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto"
               >
-                Continuar <ArrowRight className="h-4 w-4" />
+                Continue <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </>
         ) : step === 2 ? (
           <>
             <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">
-              Assistente de processamento de encomendas
+              Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              A sua experiência
+              Your experience
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              As suas respostas ajudam-nos a identificar o nível de remuneração adequado ao seu perfil.
+              Your answers help us identify the pay level that suits your profile.
             </p>
 
             <div className="mt-10 space-y-8">
-              <Group title="Qual é o seu nível de experiência?" error={show("exp")}>
+              <Group title="What is your experience level?" error={show("exp")}>
                 <div className="space-y-3">
                   {EXP.map((e) => (
                     <button
@@ -369,7 +369,7 @@ function Candidatura() {
                 </div>
               </Group>
 
-              <Group title="Como avalia o seu português escrito?" error={show("pt")}>
+              <Group title="How would you rate your written English?" error={show("pt")}>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {PT.map((p) => (
                     <button
@@ -386,7 +386,7 @@ function Candidatura() {
                 </div>
               </Group>
 
-              <Group title="Quais são os seus pontos fortes?" error={show("strengths")}>
+              <Group title="What are your strengths?" error={show("strengths")}>
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {STRENGTHS.map((s) => (
                     <button
@@ -404,20 +404,20 @@ function Candidatura() {
               </Group>
 
               <Group
-                title="Porque considera ser a pessoa certa para esta função?"
+                title="Why do you think you are right for this role?"
                 error={show("why")}
-                msg={`Por favor, escreva pelo menos ${MIN_TEXT} caracteres.`}
+                msg={`Please write at least ${MIN_TEXT} characters.`}
               >
                 <textarea
                   value={why}
                   onChange={(e) => setWhy(e.target.value.slice(0, MAX_TEXT))}
                   maxLength={MAX_TEXT}
                   rows={6}
-                  placeholder="Explique porque considera ter o perfil adequado para esta função..."
+                  placeholder="Explain why you think you are a good fit for this role..."
                   className="w-full resize-y rounded-lg border border-border bg-cream px-4 py-3 text-sm outline-none transition focus:border-navy focus:ring-1 focus:ring-navy sm:text-base"
                 />
                 <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                  <span>Mínimo de {MIN_TEXT} caracteres</span>
+                  <span>Minimum of {MIN_TEXT} characters</span>
                   <span>
                     {why.length}/{MAX_TEXT}
                   </span>
@@ -431,33 +431,33 @@ function Candidatura() {
                 onClick={() => go(1)}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto"
               >
-                <ArrowLeft className="h-4 w-4" /> Voltar
+                <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
                 type="button"
                 onClick={next}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto"
               >
-                Continuar <ArrowRight className="h-4 w-4" />
+                Continue <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </>
         ) : step === 3 ? (
           <>
             <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">
-              Assistente de processamento de encomendas
+              Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              Os seus dados
+              Your details
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              As suas respostas ajudam-nos a identificar o nível de remuneração adequado ao seu perfil.
+              Your answers help us identify the pay level that suits your profile.
             </p>
 
             <div className="mt-10 space-y-6 rounded-xl border border-border bg-background p-4 sm:p-6">
               <div>
                 <label htmlFor="name" className="text-sm font-semibold text-navy">
-                  Nome completo
+                  Full name
                 </label>
                 <input
                   id="name"
@@ -466,11 +466,11 @@ function Candidatura() {
                   autoComplete="name"
                   className={`${inputCls} ${show("name") ? "border-destructive" : "border-border"}`}
                 />
-                {show("name") && <FieldErr msg="Por favor, indique o seu nome completo." />}
+                {show("name") && <FieldErr msg="Please enter your full name." />}
               </div>
               <div>
                 <label htmlFor="email" className="text-sm font-semibold text-navy">
-                  Endereço de email
+                  Email address
                 </label>
                 <input
                   id="email"
@@ -480,11 +480,11 @@ function Candidatura() {
                   autoComplete="email"
                   className={`${inputCls} ${show("email") ? "border-destructive" : "border-border"}`}
                 />
-                {show("email") && <FieldErr msg="Por favor, indique um endereço de email válido." />}
+                {show("email") && <FieldErr msg="Please enter a valid email address." />}
               </div>
               <div>
                 <label htmlFor="phone" className="text-sm font-semibold text-navy">
-                  Número de telemóvel (opcional)
+                  Mobile number (optional)
                 </label>
                 <input
                   id="phone"
@@ -492,7 +492,7 @@ function Candidatura() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   autoComplete="tel"
-                  placeholder="+351 9XX XXX XXX"
+                  placeholder="+44 7XXX XXXXXX"
                   className={`${inputCls} border-border`}
                 />
               </div>
@@ -506,12 +506,12 @@ function Candidatura() {
                     onChange={(e) => setAgree(e.target.checked)}
                     className="mt-0.5 h-5 w-5 shrink-0 accent-navy"
                   />
-                  <span>Confirmo que tenho pelo menos 18 anos e que as informações acima são verdadeiras.</span>
+                  <span>I confirm that I am at least 18 years old and that the information above is accurate.</span>
                 </label>
-                {show("agree") && <FieldErr msg="Por favor, confirme para continuar." />}
+                {show("agree") && <FieldErr msg="Please confirm to continue." />}
               </div>
               <div className="rounded-lg bg-navy/5 px-5 py-5">
-                <p className="text-sm font-medium text-navy/80">Nível estimado para o seu perfil</p>
+                <p className="text-sm font-medium text-navy/80">Estimated level for your profile</p>
                 <p className="mt-2 font-display text-xl font-extrabold text-navy sm:text-2xl md:text-3xl">{level}</p>
               </div>
             </div>
@@ -522,33 +522,33 @@ function Candidatura() {
                 onClick={() => go(2)}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto"
               >
-                <ArrowLeft className="h-4 w-4" /> Voltar
+                <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
                 type="button"
                 onClick={next}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto"
               >
-                Continuar <ArrowRight className="h-4 w-4" />
+                Continue <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </>
         ) : step === 4 ? (
           <>
             <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">
-              Assistente de processamento de encomendas
+              Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              Verificação de identidade
+              Identity verification
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              Envie documentos nítidos e legíveis para a nossa equipa de verificação.
+              Upload clear, legible documents for our verification team.
             </p>
 
             <div className="mt-10 grid gap-5 md:grid-cols-2">
-              <UploadBox title="Documento de identificação — frente" file={cv} onChange={setCv} error={show("cv")} />
+              <UploadBox title="Identity document — front" file={cv} onChange={setCv} error={show("cv")} />
               <UploadBox
-                title="Documento de identificação — verso"
+                title="Identity document — back"
                 file={extra}
                 onChange={setExtra}
                 error={show("extra")}
@@ -561,14 +561,14 @@ function Candidatura() {
                 onClick={() => go(3)}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto"
               >
-                <ArrowLeft className="h-4 w-4" /> Voltar
+                <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
                 type="button"
                 onClick={next}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 sm:w-auto"
               >
-                Continuar <ArrowRight className="h-4 w-4" />
+                Continue <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </>
@@ -577,14 +577,14 @@ function Candidatura() {
             <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-navy/10 text-navy">
               <CheckCircle2 className="h-8 w-8" />
             </span>
-            <h1 className="mt-6 font-display text-2xl font-extrabold text-navy sm:text-3xl">Candidatura enviada</h1>
+            <h1 className="mt-6 font-display text-2xl font-extrabold text-navy sm:text-3xl">Application submitted</h1>
             <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
-              Obrigado{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}! A sua candidatura foi recebida com
-              sucesso.
+              Thank you{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}! Your application has been received
+              successfully.
             </p>
             <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-              A nossa equipa irá analisar os seus dados e documentos. Entraremos em contacto caso necessitemos de novas
-              informações ou caso venha a ser contratado.
+              Our team will review your details and documents. We will contact you if we need further
+              information or if you are offered the role.
             </p>
             {email.trim() && (
               <p className="mx-auto mt-5 inline-flex max-w-full items-center gap-2 rounded-md bg-navy/5 px-4 py-2.5 text-sm text-navy">
@@ -597,36 +597,36 @@ function Candidatura() {
               to="/"
               className="mt-8 inline-flex items-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90"
             >
-              Voltar à página inicial
+              Back to the home page
             </Link>
           </div>
         ) : (
           <>
             <p className="mt-10 text-sm font-medium text-navy/80 sm:text-base">
-              Assistente de processamento de encomendas
+              Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              Comprovativo de morada e selfie
+              Proof of UK address and selfie
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              Envie documentos nítidos e legíveis para a nossa equipa de verificação.
+              Upload clear, legible documents for our verification team.
             </p>
 
             <div className="mt-10 grid gap-5 md:grid-cols-2">
               <UploadBox
-                title="Comprovativo de morada"
+                title="Proof of UK address"
                 file={morada}
                 onChange={setMorada}
                 error={show("morada")}
-                errorMsg="Envie o seu comprovativo de morada."
+                errorMsg="Please upload proof of your UK address."
               />
               <UploadBox
-                title="Fotografia do rosto (selfie)"
-                description="Envie uma fotografia recente sua, com o rosto bem visível, para ajudar a confirmar a sua identidade."
+                title="Photo of your face (selfie)"
+                description="Upload a recent photo of yourself with your face clearly visible to help confirm your identity."
                 file={selfie}
                 onChange={setSelfie}
                 error={show("selfie")}
-                errorMsg="Envie uma fotografia do seu rosto (selfie)."
+                errorMsg="Please upload a photo of your face (selfie)."
                 photoOnly
               />
             </div>
@@ -634,8 +634,8 @@ function Candidatura() {
             <div className="mt-6 flex items-start gap-3 rounded-lg bg-navy/5 px-5 py-4 text-sm text-navy/80">
               <Lock className="mt-0.5 h-4 w-4 shrink-0" />
               <p>
-                Os seus documentos são guardados de forma privada e apenas a equipa de recrutamento autorizada pode
-                consultá-los.
+                Your documents are stored privately and can only be viewed by authorised
+                recruitment team members.
               </p>
             </div>
 
@@ -647,7 +647,7 @@ function Candidatura() {
                 disabled={sending}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto"
               >
-                <ArrowLeft className="h-4 w-4" /> Voltar
+                <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
                 type="button"
@@ -656,10 +656,10 @@ function Candidatura() {
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground transition hover:opacity-90 disabled:opacity-60 sm:w-auto"
               >
                 {sending ? (
-                  "A enviar..."
+                  "Sending..."
                 ) : (
                   <>
-                    Enviar candidatura <Check className="h-4 w-4" />
+                    Submit application <Check className="h-4 w-4" />
                   </>
                 )}
               </button>

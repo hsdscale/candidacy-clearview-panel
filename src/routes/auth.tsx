@@ -6,10 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — Painel Alvanto" },
-      { name: "description", content: "Acesso privado ao painel de candidaturas da Alvanto." },
-      { property: "og:title", content: "Entrar — Painel Alvanto" },
-      { property: "og:description", content: "Acesso privado ao painel de candidaturas." },
+      { title: "Sign in — Alvanto Applications" },
+      { name: "description", content: "Private access to the Alvanto applications panel." },
+      { property: "og:title", content: "Sign in — Alvanto Applications" },
+      { property: "og:description", content: "Private access to the applications panel." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -37,13 +37,13 @@ function AuthPage() {
     if (mode === "in") {
       const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
       setBusy(false);
-      if (error) return setErr("Email ou palavra-passe incorretos, ou email ainda não confirmado.");
+      if (error) return setErr("Incorrect email or password, or your email has not yet been confirmed.");
       nav({ to: "/admin", replace: true });
     } else {
       const { error } = await supabase.auth.signUp({ email, password: pass, options: { emailRedirectTo: `${window.location.origin}/auth` } });
       setBusy(false);
       if (error) return setErr(error.message);
-      setMsg("Conta criada. Confirme o seu email através do link enviado e depois entre.");
+      setMsg("Account created. Confirm your email using the link we sent, then sign in.");
       setMode("in");
     }
   };
@@ -53,23 +53,23 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-cream px-4 font-sans">
       <form onSubmit={submit} className="w-full max-w-sm rounded-xl border border-border bg-background p-6 sm:p-8">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-navy/10 text-navy"><Lock className="h-5 w-5" /></span>
-        <h1 className="mt-4 font-display text-2xl font-extrabold text-navy">{mode === "in" ? "Entrar no painel" : "Criar conta"}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Área privada da equipa de recrutamento.</p>
+        <h1 className="mt-4 font-display text-2xl font-extrabold text-navy">{mode === "in" ? "Sign in to the panel" : "Create account"}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Private area for the recruitment team.</p>
         <label className="mt-6 block text-sm font-semibold text-navy">Email
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={input} autoComplete="email" />
         </label>
-        <label className="mt-4 block text-sm font-semibold text-navy">Palavra-passe
+        <label className="mt-4 block text-sm font-semibold text-navy">Password
           <input type="password" required minLength={6} value={pass} onChange={(e) => setPass(e.target.value)} className={input} autoComplete={mode === "in" ? "current-password" : "new-password"} />
         </label>
         {err && <p role="alert" className="mt-3 text-sm text-destructive">{err}</p>}
         {msg && <p className="mt-3 text-sm text-navy">{msg}</p>}
         <button disabled={busy} className="mt-6 w-full rounded-md bg-navy px-6 py-3 text-sm font-semibold text-navy-foreground hover:opacity-90 disabled:opacity-60">
-          {busy ? "Aguarde..." : mode === "in" ? "Entrar" : "Criar conta"}
+          {busy ? "Please wait..." : mode === "in" ? "Sign in" : "Create account"}
         </button>
         <button type="button" onClick={() => { setMode(mode === "in" ? "up" : "in"); setErr(null); }} className="mt-4 w-full text-sm text-muted-foreground hover:text-navy">
-          {mode === "in" ? "Ainda não tem conta? Criar conta" : "Já tem conta? Entrar"}
+          {mode === "in" ? "Ainda não tem conta? Create account" : "Already have an account? Sign in"}
         </button>
-        <Link to="/" className="mt-2 block text-center text-xs text-muted-foreground hover:text-navy">Voltar ao site</Link>
+        <Link to="/" className="mt-2 block text-center text-xs text-muted-foreground hover:text-navy">Back to the website</Link>
       </form>
     </div>
   );

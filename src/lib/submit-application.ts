@@ -30,7 +30,7 @@ async function upload(folder: string, label: string, f: File) {
 }
 
 export async function submitApplication(a: ApplicationInput) {
-  if (!a.selfie) throw new Error('Envie uma fotografia do seu rosto (selfie).');
+  if (!a.selfie) throw new Error('Please upload a photo of your face (selfie).');
   const selfieError = uploadError(a.selfie, true);
   if (selfieError) throw new Error(selfieError);
   const id = crypto.randomUUID();
@@ -52,6 +52,6 @@ export async function submitApplication(a: ApplicationInput) {
     await notifyNewApplication({ data: { applicationId: id } });
   } catch {
     // The saved candidature must not be submitted twice after an email failure.
-    console.warn('A candidatura foi guardada, mas o aviso por email não ficou confirmado.');
+    console.warn('The application was saved, but the email notification was not confirmed.');
   }
 }

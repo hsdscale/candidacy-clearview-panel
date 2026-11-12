@@ -5,15 +5,15 @@ interface Props { candidateName?: string; applicationNumber?: number }
 
 function NewApplicationEmail({ candidateName, applicationNumber }: Props) {
   return (
-    <Html lang="pt-PT" dir="ltr">
+    <Html lang="en-GB" dir="ltr">
       <Head />
-      <Preview>Recebeu uma nova candidatura na Alvanto.</Preview>
+      <Preview>You have received a new application at Alvanto.</Preview>
       <Body style={{ backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }}>
         <Container style={{ padding: '32px 24px', maxWidth: '560px' }}>
           <Heading>Alvanto</Heading>
-          {applicationNumber != null && <Text>Candidatura n.º {applicationNumber}</Text>}
-          <Text>Recebeu uma nova candidatura{candidateName ? ` de ${candidateName}` : ''}.</Text>
-          <Text>Aceda ao seu painel para consultar os dados e organizar a candidatura com as suas etiquetas.</Text>
+          {applicationNumber != null && <Text>Application # {applicationNumber}</Text>}
+          <Text>You have received a new application{candidateName ? ` from ${candidateName}` : ''}.</Text>
+          <Text>Open your panel to review the details and update the application status.</Text>
         </Container>
       </Body>
     </Html>
@@ -23,8 +23,8 @@ function NewApplicationEmail({ candidateName, applicationNumber }: Props) {
 export const template = {
   component: NewApplicationEmail,
   subject: (d: Record<string, any>) =>
-    d?.['applicationNumber'] != null ? `Novo cadastro no Alvanto #${d['applicationNumber']}` : 'Novo cadastro no Alvanto',
+    d?.['applicationNumber'] != null ? `New application at Alvanto #${d['applicationNumber']}` : 'New application at Alvanto',
   to: 'cdrnegociosdigitais@gmail.com',
-  displayName: 'Nova candidatura — Alvanto',
+  displayName: 'New application — Alvanto',
   previewData: { candidateName: 'Maria Silva', applicationNumber: 1 },
 } satisfies TemplateEntry

@@ -23,13 +23,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Estamos a recrutar — Assistente de processamento de encomendas" },
+      { title: "Alvanto Careers — Order Processing Assistant" },
       {
         name: "description",
-        content: "Função 100% remota em Portugal, pagamento semanal e horário flexível. Formação incluída.",
+        content: "Fully remote role in the United Kingdom, weekly pay and flexible hours. Training included.",
       },
-      { property: "og:title", content: "Estamos a recrutar — Assistente de processamento de encomendas" },
-      { property: "og:description", content: "Função 100% remota em Portugal, pagamento semanal e horário flexível." },
+      { property: "og:title", content: "Alvanto Careers — Order Processing Assistant" },
+      { property: "og:description", content: "Fully remote role in the United Kingdom, weekly pay and flexible hours." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -66,7 +66,7 @@ function Index() {
             to="/candidatura"
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-navy px-4 py-2 text-xs font-semibold text-navy-foreground transition hover:opacity-90 sm:px-5 sm:py-2.5 sm:text-sm"
           >
-            Ver requisitos <ArrowRight className="h-4 w-4" />
+            View requirements <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </header>
@@ -74,29 +74,29 @@ function Index() {
       {/* Hero */}
       <section className="px-6 pb-16 pt-14 text-center">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-1.5 text-xs font-medium">
-          <MapPin className="h-3.5 w-3.5" /> Portugal · Trabalho a partir de casa
+          <MapPin className="h-3.5 w-3.5" /> United Kingdom · Work from home
         </span>
-        <h1 className="mt-6 font-display text-5xl font-extrabold tracking-tight md:text-6xl">Estamos a recrutar!</h1>
+        <h1 className="mt-6 font-display text-5xl font-extrabold tracking-tight md:text-6xl">We’re hiring!</h1>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Junte-se à nossa equipa numa função remota com horário flexível em Portugal.
+          Join our team in a remote role with flexible hours in the United Kingdom.
         </p>
         <div className="mx-auto mt-10 max-w-3xl rounded-xl bg-navy p-8 text-left text-navy-foreground shadow-[var(--shadow-card)]">
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div>
-              <Eyebrow light>Recrutamento em curso</Eyebrow>
-              <h2 className="mt-2 font-display text-3xl font-bold">Assistente de processamento de encomendas</h2>
+              <Eyebrow light>Now recruiting</Eyebrow>
+              <h2 className="mt-2 font-display text-3xl font-bold">Order Processing Assistant</h2>
               <p className="mt-3 max-w-lg text-sm opacity-80">
-                Ajude a processar encomendas, confirme os dados dos clientes e contribua para o bom funcionamento das
-                operações diárias.
+                Help process orders, confirm customer details and keep
+                day-to-day operations running smoothly.
               </p>
             </div>
-            <Btn variant="amber">Candidatar-me</Btn>
+            <Btn variant="amber">Apply now</Btn>
           </div>
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             {[
-              [Home, "100% remoto", "Trabalhe a partir de casa, em qualquer região de Portugal"],
-              [Wallet, "Pagamento semanal", "Pagamentos regulares todas as semanas"],
-              [Clock, "2–8 horas/dia", "Escolha um horário compatível com a sua rotina"],
+              [Home, "100% remote", "Work from home anywhere in the United Kingdom"],
+              [Wallet, "Weekly pay", "Regular payments every week"],
+              [Clock, "2–8 hours/day", "Choose hours that fit your routine"],
             ].map(([Icon, t, d]: any) => (
               <div key={t} className="flex gap-3">
                 <Icon className="h-5 w-5 shrink-0 text-amber" />
@@ -114,22 +114,22 @@ function Index() {
       <section className="bg-background px-6 py-20">
         <div className="mx-auto grid max-w-6xl items-center gap-10 md:grid-cols-2">
           <div>
-            <Eyebrow>Trabalho flexível. Remuneração de acordo com a sua disponibilidade.</Eyebrow>
-            <h2 className="mt-2 font-display text-3xl font-bold">A sua disponibilidade faz a diferença</h2>
+            <Eyebrow>Flexible work. Pay that reflects your availability.</Eyebrow>
+            <h2 className="mt-2 font-display text-3xl font-bold">Your availability makes a difference</h2>
             <p className="mt-3 text-sm text-muted-foreground">
-              A remuneração mensal estimada depende das horas trabalhadas e do nível de experiência avaliado.
+              Estimated monthly pay depends on the hours worked and your assessed experience level.
             </p>
             <div className="mt-6 grid grid-cols-2 gap-3">
               {[
-                ["Nível inicial", "5 200 – 5 850 €"],
-                ["Nível intermédio", "6 500 – 7 150 €"],
-                ["Nível experiente", "7 150 – 7 800 €"],
-                ["Potencial máximo", "Até 10 560 €"],
+                ["Entry level", "5 200 – £5,850"],
+                ["Intermediate level", "6 500 – £7,150"],
+                ["Experienced level", "7 150 – £7,800"],
+                ["Maximum potential", "Up to £10,560"],
               ].map(([l, v]) => (
                 <div key={l} className="rounded-lg border border-border bg-cream p-4">
                   <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{l}</p>
                   <p className="mt-1 font-semibold">
-                    {v} <span className="text-xs font-normal">/ mês</span>
+                    {v} <span className="text-xs font-normal">/ month</span>
                   </p>
                 </div>
               ))}
@@ -137,11 +137,11 @@ function Index() {
           </div>
           <div className="rounded-xl bg-amber p-8 text-amber-foreground shadow-[var(--shadow-card)]">
             <CircleDollarSign className="h-8 w-8" />
-            <p className="mt-6 text-xs font-bold uppercase tracking-wider">Remuneração por hora</p>
-            <p className="mt-2 font-display text-5xl font-extrabold">75–95 €</p>
-            <p className="mt-1 text-sm">EUR por hora</p>
+            <p className="mt-6 text-xs font-bold uppercase tracking-wider">Hourly pay</p>
+            <p className="mt-2 font-display text-5xl font-extrabold">£75–95</p>
+            <p className="mt-1 text-sm">GBP per hour</p>
             <div className="mt-8 border-t border-navy/20 pt-4 text-xs">
-              Pagamento semanal · Horário flexível · Trabalho remoto
+              Weekly pay · Flexible hours · Remote work
             </div>
           </div>
         </div>
@@ -149,13 +149,13 @@ function Index() {
 
       {/* Levels */}
       <section className="px-6 py-20 text-center">
-        <Eyebrow>Qual é o seu nível?</Eyebrow>
-        <h2 className="mt-2 font-display text-3xl font-bold">Três níveis de remuneração</h2>
+        <Eyebrow>What is your experience level?</Eyebrow>
+        <h2 className="mt-2 font-display text-3xl font-bold">Three pay levels</h2>
         <div className="mx-auto mt-10 grid max-w-6xl gap-4 text-left md:grid-cols-3">
           {[
-            ["Nível inicial", "40 – 45 €", "Não é necessária experiência", false],
-            ["Nível intermédio", "50 – 55 €", "Alguma experiência relevante", true],
-            ["Nível experiente", "75 – 95 €", "Experiência sólida na área", false],
+            ["Entry level", "40 – £45", "No experience required", false],
+            ["Intermediate level", "50 – £55", "Some relevant experience", true],
+            ["Experienced level", "75 – £95", "Strong experience in the field", false],
           ].map(([t, p, d, hl]: any) => (
             <div
               key={t}
@@ -163,14 +163,14 @@ function Index() {
             >
               {hl && (
                 <span className="absolute right-4 top-4 rounded-full bg-amber px-2.5 py-0.5 text-[11px] font-semibold text-amber-foreground">
-                  Mais frequente
+                  Most common
                 </span>
               )}
               <GraduationCap className={`h-6 w-6 ${hl ? "text-amber" : ""}`} />
               <h3 className="mt-5 font-display text-lg font-semibold">{t}</h3>
               <p className="mt-2 font-display text-3xl font-extrabold">
                 {p}
-                <span className="text-sm font-medium">/hora</span>
+                <span className="text-sm font-medium">/hour</span>
               </p>
               <p className={`mt-3 text-xs ${hl ? "opacity-70" : "text-muted-foreground"}`}>{d}</p>
             </div>
@@ -182,17 +182,17 @@ function Index() {
       <section id="requisitos" className="bg-navy px-6 py-20 text-navy-foreground">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2">
           <div>
-            <Eyebrow light>Acompanhamos a sua aprendizagem</Eyebrow>
-            <h2 className="mt-2 font-display text-3xl font-bold">Formação completa incluída</h2>
+            <Eyebrow light>We support your learning</Eyebrow>
+            <h2 className="mt-2 font-display text-3xl font-bold">Full training included</h2>
             <p className="mt-3 text-sm opacity-75">
-              Não precisa de experiência anterior no processamento de encomendas. A nossa formação acompanha-o em todas
-              as tarefas da função.
+              You do not need previous experience in order processing. Our training guides you through
+              every task in the role.
             </p>
             <ul className="mt-6 space-y-3 text-sm">
               {[
-                "Integração simples, passo a passo",
-                "Apoio contínuo da equipa",
-                "Procedimentos claros e ferramentas fáceis de utilizar",
+                "Straightforward, step-by-step onboarding",
+                "Ongoing support from the team",
+                "Clear procedures and easy-to-use tools",
               ].map((i) => (
                 <li key={i} className="flex items-center gap-3">
                   <CheckCircle2 className="h-4 w-4 text-amber" />
@@ -205,22 +205,22 @@ function Index() {
             {[
               [
                 Laptop,
-                "As suas funções",
+                "Your responsibilities",
                 [
-                  "Verificar e processar encomendas",
-                  "Confirmar os dados dos clientes",
-                  "Atualizar os registos das encomendas",
-                  "Seguir as instruções de trabalho",
+                  "Check and process orders",
+                  "Confirm customer details",
+                  "Update order records",
+                  "Follow work instructions",
                 ],
               ],
               [
                 ShieldCheck,
-                "Requisitos",
+                "Requirements",
                 [
-                  "Ter pelo menos 18 anos",
-                  "Residir em Portugal",
-                  "Computador ou telemóvel",
-                  "Ligação estável à Internet",
+                  "Be at least 18 years old",
+                  "Live in the United Kingdom",
+                  "Computer or mobile phone",
+                  "Stable internet connection",
                 ],
               ],
             ].map(([Icon, t, items]: any) => (
@@ -243,20 +243,20 @@ function Index() {
 
       {/* Process */}
       <section className="px-6 py-20 text-center">
-        <Eyebrow>Simples e transparente</Eyebrow>
-        <h2 className="mt-2 font-display text-3xl font-bold">O processo de recrutamento</h2>
+        <Eyebrow>Simple and transparent</Eyebrow>
+        <h2 className="mt-2 font-display text-3xl font-bold">The recruitment process</h2>
         <div className="mx-auto mt-12 grid max-w-6xl gap-8 sm:grid-cols-2 md:grid-cols-4">
           {[
-            [MousePointerClick, "Verificar os requisitos", "Responda a algumas perguntas."],
-            [FileText, "Preencher os seus dados", "Indique a sua disponibilidade."],
-            [UserCheck, "Análise da candidatura", "A nossa equipa analisa a sua candidatura."],
-            [Headphones, "Iniciar a formação", "Os candidatos selecionados iniciam a formação."],
+            [MousePointerClick, "Check the requirements", "Answer a few questions."],
+            [FileText, "Enter your details", "Tell us your availability."],
+            [UserCheck, "Application review", "Our team reviews your application."],
+            [Headphones, "Start training", "Successful candidates begin training."],
           ].map(([Icon, t, d]: any, i) => (
             <div key={t}>
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber text-amber-foreground">
                 <Icon className="h-5 w-5" />
               </div>
-              <p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-navy/70">Etapa {i + 1}</p>
+              <p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-navy/70">Step {i + 1}</p>
               <h3 className="mt-1 font-semibold">{t}</h3>
               <p className="mt-1 text-xs text-muted-foreground">{d}</p>
             </div>
@@ -267,32 +267,32 @@ function Index() {
       {/* CTA */}
       <section className="border-t border-border bg-background px-6 py-20 text-center">
         <Sparkles className="mx-auto h-8 w-8 text-amber" />
-        <h2 className="mt-4 font-display text-3xl font-bold">Pronto para trabalhar a partir de casa?</h2>
+        <h2 className="mt-4 font-display text-3xl font-bold">Ready to work from home?</h2>
         <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
-          Descubra o nível de remuneração correspondente ao seu perfil. Demora apenas alguns minutos.
+          Find the pay level that matches your profile. It only takes a few minutes.
         </p>
         <div className="mt-6">
-          <Btn>Ver requisitos</Btn>
+          <Btn>View requirements</Btn>
         </div>
       </section>
 
       <footer className="bg-navy px-6 py-14 text-center text-navy-foreground">
         <img src={logo2} alt="Alvanto" className="mx-auto h-[24px] w-auto" width={300} height={92} loading="lazy" />
         <p className="mx-auto mt-6 max-w-3xl text-xs opacity-60">
-          Os valores apresentados são estimativas e podem variar consoante as horas trabalhadas, a experiência e a
-          disponibilidade da vaga. Esta página não garante a contratação nem um rendimento específico. Os candidatos
-          devem cumprir os requisitos de elegibilidade e de verificação.
+          The amounts shown are estimates and may vary depending on hours worked, experience and
+          vacancy availability. This page does not guarantee employment or a specific income. Applicants
+          must meet the eligibility and verification requirements.
         </p>
         <div className="mt-5 flex justify-center gap-3 text-xs opacity-70">
           <a href="#" className="underline">
-            Aviso de privacidade
+            Privacy notice
           </a>
           ·
           <a href="#" className="underline">
-            Definições de cookies
+            Cookie settings
           </a>
         </div>
-        <p className="mt-5 text-xs opacity-50">© 2026 Alvanto Careers. Todos os direitos reservados.</p>
+        <p className="mt-5 text-xs opacity-50">© 2026 Alvanto Careers. All rights reserved.</p>
       </footer>
     </div>
   );

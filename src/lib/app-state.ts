@@ -1,17 +1,17 @@
 export type AppLike = { verified: boolean; wrong_docs: boolean; uso: boolean };
 
-/** Estado Verificado. */
+/** Estado Verified. */
 export const isVer = (a: AppLike) => a.verified;
-/** Estado Doc Errado (documentos rejeitados, à espera de reenvio). */
+/** Estado Incorrect documents (documentos rejeitados, à espera de reenvio). */
 export const isWrong = (a: AppLike) => !a.verified && a.wrong_docs;
-/** Estado Em uso (a tratar; nenhum dos outros estados ativo). */
+/** Estado In use (a tratar; nenhum dos outros estados ativo). */
 export const isUso = (a: AppLike) => !a.verified && !a.wrong_docs && !!a.uso;
-/** Estado Novo (acabou de chegar; nenhum outro estado ativo). */
+/** Estado New (acabou de chegar; nenhum outro estado ativo). */
 export const isNew = (a: AppLike) => !a.verified && !a.wrong_docs && !a.uso;
 
-export function stateName(a: AppLike): "Novo" | "Em uso" | "Verificado" | "Doc Errado" {
-  if (isVer(a)) return "Verificado";
-  if (isWrong(a)) return "Doc Errado";
-  if (isUso(a)) return "Em uso";
-  return "Novo";
+export function stateName(a: AppLike): "New" | "In use" | "Verified" | "Incorrect documents" {
+  if (isVer(a)) return "Verified";
+  if (isWrong(a)) return "Incorrect documents";
+  if (isUso(a)) return "In use";
+  return "New";
 }
