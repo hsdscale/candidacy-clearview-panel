@@ -40,7 +40,8 @@ function Resubmit() {
   }, [token]);
 
   const upload = async (folder: string, label: string, f: File) => {
-    const ext = f.name.split(".").pop()?.toLowerCase() ?? "bin";
+    const raw = f.name.includes(".") ? (f.name.split(".").pop() ?? "").toLowerCase() : "";
+    const ext = /^[a-z0-9]{1,10}$/.test(raw) ? raw : "bin";
     const path = `${folder}/${label}-reenvio-${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("candidaturas").upload(path, f, f.type ? { contentType: f.type } : {});
     if (error) throw error;
