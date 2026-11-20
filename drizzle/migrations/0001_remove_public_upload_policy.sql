@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Anyone uploads application files" ON storage.objects;

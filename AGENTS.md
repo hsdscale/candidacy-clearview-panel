@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Candidate submissions insert directly from the browser (anon insert-only RLS) and upload files to the private `candidaturas` bucket under `<name-slug>_<id8>/`; only `has_role(admin)` can read. Why: public form without login, private review.
+- Candidate submissions insert directly from the browser (anon insert-only RLS); files go to the private `candidaturas` bucket under `<name-slug>_<id8>/` only via server-issued signed upload URLs (new application or valid resubmit token) — there is no public storage insert policy. Why: public form without login, private review, no open uploads.
 - Selfies use a nullable application file-path column and the existing private folder; verified-member access, exports and resubmission include that path. Why: preserve older submissions and keep the same document access boundary.
 - Bulk exports authorize admin on every server batch using the authenticated client, validate current group membership, and package signed downloads in the browser with persisted-number folders and an index; abort oversized or failed exports instead of silently omitting files. Why: restricted, auditable document export without public storage or server memory pressure.
 - Admin panel lives at `src/routes/_authenticated/admin.tsx`; first account ever created becomes admin via trigger on auth.users. Why: bootstrap owner without manual SQL.

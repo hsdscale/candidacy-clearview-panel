@@ -8,6 +8,13 @@
       "when": 1794684591481,
       "tag": "0000_tighten_public_submission_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795146445302,
+      "tag": "0001_remove_public_upload_policy",
+      "breakpoints": true
     }
   ]
 }

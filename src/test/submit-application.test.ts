@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ upload: vi.fn(), insert: vi.fn(), notify: vi.fn() }));
+const mocks = vi.hoisted(() => ({ upload: vi.fn(), prepare: vi.fn(), insert: vi.fn(), notify: vi.fn() }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: {
-  storage: { from: () => ({ upload: mocks.upload }) },
+  storage: { from: () => ({ uploadToSignedUrl: mocks.upload }) },
   from: () => ({ insert: mocks.insert }),
 } }));
+vi.mock('@/lib/upload-urls.functions', () => ({ prepareApplicationUploads: mocks.prepare }));
 vi.mock('@/lib/application-notification.functions', () => ({ notifyNewApplication: mocks.notify }));
 
 import { submitApplication, type ApplicationInput } from '@/lib/submit-application';
@@ -18,6 +19,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.upload.mockResolvedValue({ error: null });
   mocks.insert.mockResolvedValue({ error: null });
+  mocks.prepare.mockImplementation(async ({ data }: any) => { const id = 'abcdef12-0000-4000-8000-000000000000'; return { id, slots: data.files.map((f: any) => ({ label: f.label, path: `${data.slug}_abcdef12/${f.label}.${f.ext}`, token: 't' })) }; });
   mocks.notify.mockResolvedValue({});
 });
 
@@ -33,7 +35,7 @@ describe('Submitting a selfie', () => {
     const row = mocks.insert.mock.calls[0]?.[0];
     expect(row.selfie_path).toMatch(/^teste-selfie_[a-f0-9]{8}\/selfie.jpg$/);
     expect(row.morada_path.split('/')[0]).toBe(row.selfie_path.split('/')[0]);
-    expect(mocks.upload).toHaveBeenCalledWith(row.selfie_path, input.selfie, { contentType: 'image/jpeg' });
+    expect(mocks.upload).toHaveBeenCalledWith(row.selfie_path, 't', input.selfie, { contentType: 'image/jpeg' });
     expect(mocks.upload).toHaveBeenCalledTimes(4);
   });
 });

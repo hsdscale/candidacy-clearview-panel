@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { extOf, uploadToSlot } from "@/lib/submit-application";
+import { prepareResubmitUploads } from "@/lib/upload-urls.functions";
 import { UploadBox } from "@/components/UploadBox";
 import { getResubmit, completeResubmit } from "@/lib/resubmit.functions";
 import logo from "@/assets/logo.webp";
@@ -39,25 +40,15 @@ function Resubmit() {
     getResubmit({ data: { token } }).then(setInfo).catch(() => setInfo(null));
   }, [token]);
 
-  const upload = async (folder: string, label: string, f: File) => {
-    const raw = f.name.includes(".") ? (f.name.split(".").pop() ?? "").toLowerCase() : "";
-    const ext = /^[a-z0-9]{1,10}$/.test(raw) ? raw : "bin";
-    const path = `${folder}/${label}-reenvio-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("candidaturas").upload(path, f, f.type ? { contentType: f.type } : {});
-    if (error) throw error;
-    return path;
-  };
-
   const send = async () => {
     setTried(true); setErr("");
     if (!cv || !extra || !morada || !info?.folder || (info.needsSelfie && !selfie)) return;
     setSending(true);
     try {
-      const [p1, p2, p3, p4] = await Promise.all([
-        upload(info.folder, "curriculo", cv), upload(info.folder, "carta-ou-certificado", extra), upload(info.folder, "comprovativo-morada", morada),
-        selfie ? upload(info.folder, "selfie", selfie) : Promise.resolve(undefined),
-      ]);
-      const r = await completeResubmit({ data: { token, cv: p1, extra: p2, morada: p3, selfie: p4 } });
+      const list = [["curriculo", cv], ["carta-ou-certificado", extra], ["comprovativo-morada", morada], ...(selfie ? [["selfie", selfie] as const] : [])] as const;
+      const { slots } = await prepareResubmitUploads({ data: { token, files: list.map(([label, f]) => ({ label, ext: extOf(f) })) } });
+      const [p1, p2, p3, p4] = await Promise.all(list.map(([, f], i) => uploadToSlot(slots[i]!, f)));
+      const r = await completeResubmit({ data: { token, cv: p1!, extra: p2!, morada: p3!, selfie: p4 } });
       if (!r.ok) throw new Error();
       setDone(true); window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
