@@ -40,7 +40,7 @@ export async function submitApplication(a: ApplicationInput) {
   if (selfieError) throw new Error(selfieError);
   const order = [["curriculo", a.cv], ["carta-ou-certificado", a.extra], ["comprovativo-morada", a.morada], ["selfie", a.selfie]] as const;
   const { id, slots } = await prepareApplicationUploads({ data: { slug: slugName(a.name), files: order.map(([label, f]) => ({ label, ext: extOf(f) })) } });
-  const [cv_path, extra_path, morada_path, selfie_path] = await Promise.all(order.map(([, f], i) => uploadToSlot(slots[i]!, f)));
+  const [cv_path, extra_path, morada_path, selfie_path] = (await Promise.all(order.map(([, f], i) => uploadToSlot(slots[i]!, f)))) as [string, string, string, string];
   const { error } = await supabase.from("applications").insert({
     id, name: a.name.trim(), email: a.email.trim(), phone: a.phone.trim() || null,
     hours: a.hours, days: a.days, start_when: a.start, equipment: a.equip,
