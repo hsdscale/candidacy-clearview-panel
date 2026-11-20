@@ -23,3 +23,4 @@
 - [x] Logo real da Alvanto (logo.webp no topo, logo2.webp no rodapé)
 - [x] Logo com 24 px de altura no topo e no rodapé (rodapé centrado); ícone do separador com a marca Alvanto
 - [ ] Os ficheiros src/assets/logo.webp e logo2.webp voltaram a ser a logo da Amazon — precisa da marca Alvanto para publicar
+- [ ] Ligar subdomínio uk.amasom.store
