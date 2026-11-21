@@ -15,6 +15,13 @@
       "when": 1795146445302,
       "tag": "0001_remove_public_upload_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795235147687,
+      "tag": "0002_restore_first_admin_trigger",
+      "breakpoints": true
     }
   ]
 }
