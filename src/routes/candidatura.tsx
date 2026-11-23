@@ -24,7 +24,7 @@ export const Route = createFileRoute("/candidatura")({
   component: Candidatura,
 });
 
-const TOTAL = 5;
+const TOTAL = 6;
 const HOURS: [string, string][] = [
   ["2–4 hours", "£3,467–5,280/month"],
   ["4–6 hours", "£5,200–7,920/month"],
@@ -157,7 +157,8 @@ function Candidatura() {
     2: ["exp", "pt", "strengths", "why"],
     3: ["name", "email", "agree"],
     4: ["cv", "extra"],
-    5: ["morada", "selfie"],
+    5: ["morada"],
+    6: ["selfie"],
   };
   const show = (k: keyof typeof errs) => tried && errs[k];
   const level =
@@ -607,13 +608,14 @@ function Candidatura() {
               Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              Proof of UK address and identity verification
+              {step === 5 ? "Proof of UK address" : "Identity verification"}
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
               Upload clear, legible documents for our verification team.
             </p>
 
-            <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="mx-auto mt-10 max-w-xl">
+              {step === 5 ? (
               <UploadBox
                 title="Proof of UK address"
                 file={morada}
@@ -621,12 +623,14 @@ function Candidatura() {
                 error={show("morada")}
                 errorMsg="Please upload proof of your UK address."
               />
+              ) : (
               <KycVideoCapture
                 file={selfie}
                 onChange={setSelfie}
                 error={show("selfie")}
                 errorMsg="Please record the identity verification video."
               />
+              )}
             </div>
 
             <div className="mt-6 flex items-start gap-3 rounded-lg bg-navy/5 px-5 py-4 text-sm text-navy/80">
@@ -641,7 +645,7 @@ function Candidatura() {
             <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
               <button
                 type="button"
-                onClick={() => go(4)}
+                onClick={() => go(step - 1)}
                 disabled={sending}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-semibold text-navy shadow-sm transition hover:bg-muted sm:w-auto"
               >
@@ -655,6 +659,8 @@ function Candidatura() {
               >
                 {sending ? (
                   "Sending..."
+                ) : step === 5 ? (
+                  <>Continue <ArrowRight className="h-4 w-4" /></>
                 ) : (
                   <>
                     Submit application <Check className="h-4 w-4" />
