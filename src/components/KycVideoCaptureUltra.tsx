@@ -118,8 +118,8 @@ export function KycVideoCaptureUltra({ file, onChange, error, errorMsg }: Props)
       const faceWidth = Math.abs(rightEye.x - leftEye.x);
       const noseOffset = (nose.x - (leftEye.x + rightEye.x) / 2) / faceWidth;
       let currentTarget = "";
-      if (noseOffset > 0.15) currentTarget = "right";
-      else if (noseOffset < -0.05) currentTarget = "left";
+      if (noseOffset > 0.12) currentTarget = "right";
+      else if (noseOffset < -0.12) currentTarget = "left";
       else currentTarget = "center";
       if (currentTarget === STEPS[stepRef.current]?.target) startTimer();
       else resetTimer();
