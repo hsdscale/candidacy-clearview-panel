@@ -3,8 +3,9 @@ import { Camera, CheckCircle2, AlertCircle, Loader2, RotateCcw } from "lucide-re
 
 // Liveness check based on the supplied KYCVideoCapturePro: noseOffset detection,
 // 200 ms polling and a 3 s hold per step that resets when the person moves.
-const HOLD_MS = 3000;
-const POLL_MS = 200;
+const HOLD_MS = 2000;
+const POLL_MS = 150;
+const AUTO_START_POLL_MS = 500;
 const STEPS = [
   { text: "Center your face in the circle", target: "center" },
   { text: "Turn your head to the RIGHT", target: "right" },
@@ -46,7 +47,11 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
   };
-  useEffect(() => stopAll, []);
+  useEffect(() => {
+    if (!file) void startCamera();
+    return stopAll;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const startCamera = async () => {
     setErr(null);
@@ -63,9 +68,24 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
       streamRef.current = stream;
       if (videoRef.current) videoRef.current.srcObject = stream;
       setStatus("waiting");
+      intervalRef.current = window.setInterval(() => void waitForFace(), AUTO_START_POLL_MS);
     } catch {
       setStatus("error");
       setErr("We could not access your camera. Check the browser permissions and try again.");
+    }
+  };
+
+  // Auto-start: begin recording as soon as a face is first detected.
+  const waitForFace = async () => {
+    const faceapi = faceapiRef.current;
+    const video = videoRef.current;
+    if (!faceapi || !video || busyRef.current || recorderRef.current || video.readyState < 2) return;
+    busyRef.current = true;
+    try {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+      if (detection && !recorderRef.current && streamRef.current) startRecording();
+    } finally {
+      busyRef.current = false;
     }
   };
 
@@ -98,9 +118,9 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
       const faceWidth = Math.abs(rightEye.x - leftEye.x);
       const noseOffset = (nose.x - (leftEye.x + rightEye.x) / 2) / faceWidth;
       let currentTarget = "";
-      if (Math.abs(noseOffset) < 0.15) currentTarget = "center";
-      else if (noseOffset > 0.2) currentTarget = "right";
-      else if (noseOffset < -0.2) currentTarget = "left";
+      if (Math.abs(noseOffset) < 0.25) currentTarget = "center";
+      else if (noseOffset > 0.25) currentTarget = "right";
+      else if (noseOffset < -0.25) currentTarget = "left";
       if (currentTarget === STEPS[stepRef.current]?.target) startTimer();
       else resetTimer();
     } finally {
@@ -119,6 +139,8 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
       setErr("Your browser does not support video recording. Please try another browser.");
       return;
     }
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
+    intervalRef.current = null;
     chunksRef.current = [];
     recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
     recorder.onstop = () => {
@@ -205,11 +227,6 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
         {(status === "idle" || status === "error") && (
           <button type="button" onClick={startCamera} className="inline-flex items-center gap-2 rounded-2xl bg-navy px-8 py-3 font-bold text-navy-foreground transition-all hover:opacity-90 active:scale-95">
             <Camera className="h-4 w-4" /> Enable camera
-          </button>
-        )}
-        {status === "waiting" && (
-          <button type="button" onClick={startRecording} className="rounded-2xl bg-navy px-10 py-4 font-bold text-navy-foreground transition-all hover:opacity-90 active:scale-95">
-            Start Verification
           </button>
         )}
         {done && (
