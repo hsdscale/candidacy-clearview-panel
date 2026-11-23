@@ -110,7 +110,7 @@ export function KycVideoCaptureUltra({ file, onChange, error, errorMsg }: Props)
     try {
       const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
       if (!recorderRef.current) return;
-      if (!detection) return resetTimer();
+      if (!detection) return; // tolerate a lost frame without resetting
       const landmarks = detection.landmarks;
       const nose = landmarks.getNose()[0]!;
       const leftEye = landmarks.getLeftEye()[0]!;
@@ -118,8 +118,8 @@ export function KycVideoCaptureUltra({ file, onChange, error, errorMsg }: Props)
       const faceWidth = Math.abs(rightEye.x - leftEye.x);
       const noseOffset = (nose.x - (leftEye.x + rightEye.x) / 2) / faceWidth;
       let currentTarget = "";
-      if (noseOffset > 0.12) currentTarget = "right";
-      else if (noseOffset < -0.12) currentTarget = "left";
+      if (noseOffset > 0.15) currentTarget = "right";
+      else if (noseOffset < -0.05) currentTarget = "left";
       else currentTarget = "center";
       if (currentTarget === STEPS[stepRef.current]?.target) startTimer();
       else resetTimer();
