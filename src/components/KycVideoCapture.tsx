@@ -62,7 +62,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
       await faceapi.nets.faceLandmark68Net.loadFromUri("/models");
       faceapiRef.current = faceapi;
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
         audio: false,
       });
       streamRef.current = stream;
@@ -119,7 +119,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
       const noseOffset = (nose.x - (leftEye.x + rightEye.x) / 2) / faceWidth;
       let currentTarget = "";
       if (noseOffset > 0.10) currentTarget = "right";
-      else if (noseOffset < -0.06) currentTarget = "left";
+      else if (noseOffset < -0.02) currentTarget = "left";
       else currentTarget = "center";
       if (currentTarget === STEPS[stepRef.current]?.target) startTimer();
       else resetTimer();
