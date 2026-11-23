@@ -1,7 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, RotateCcw, CheckCircle2, AlertCircle, Video } from "lucide-react";
 
-const STEP_MS = 4000;
+const HOLD_FRAMES = 6;
+const MAX_MS = 45000;
+// Nose position between the jaw edges on the raw (unmirrored) camera image: 0 = image left, 1 = image right.
+function yawRatio(pts: { x: number }[]) {
+  const l = pts[0]!.x, r = pts[16]!.x, n = pts[30]!.x;
+  return (n - l) / (r - l || 1);
+}
+const STEP_OK = [
+  (y: number) => y > 0.4 && y < 0.6,
+  (y: number) => y < 0.32, // user's right appears on the image left
+  (y: number) => y > 0.68,
+];
 const STEPS = [
   "Centre your face in the circle",
   "Now turn your head to the RIGHT",
@@ -31,12 +42,23 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
   const [recording, setRecording] = useState(false);
   const [step, setStep] = useState(0);
   const [err, setErr] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [faceSeen, setFaceSeen] = useState(false);
+  const faceapiRef = useRef<typeof import("face-api.js") | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const stepRef = useRef(0);
+  const holdRef = useRef(0);
 
   useEffect(() => stopAll, []);
+  useEffect(() => {
+    if (!file && videoRef.current && streamRef.current) videoRef.current.srcObject = streamRef.current;
+  }, [file, cameraOn]);
 
   const stopAll = () => {
     timersRef.current.forEach((t) => window.clearTimeout(t));
     timersRef.current = [];
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
     recorderRef.current = null;
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
@@ -52,9 +74,41 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
       streamRef.current = stream;
       if (videoRef.current) videoRef.current.srcObject = stream;
       setCameraOn(true);
+      const faceapi = await import("face-api.js");
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+        faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+      ]);
+      faceapiRef.current = faceapi;
+      setReady(true);
+      loop();
     } catch {
       setErr("We could not access your camera. Check the browser permissions and try again.");
     }
+  };
+
+  const loop = async () => {
+    const faceapi = faceapiRef.current;
+    const video = videoRef.current;
+    if (!faceapi || !video || !streamRef.current) return;
+    if (video.readyState >= 2) {
+      const det = await faceapi
+        .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
+        .withFaceLandmarks();
+      setFaceSeen(!!det);
+      if (det && recorderRef.current) {
+        const ok = STEP_OK[stepRef.current]?.(yawRatio(det.landmarks.positions));
+        holdRef.current = ok ? holdRef.current + 1 : 0;
+        if (holdRef.current >= HOLD_FRAMES) {
+          holdRef.current = 0;
+          stepRef.current += 1;
+          if (stepRef.current >= STEPS.length) {
+            stopRecording(true);
+          } else setStep(stepRef.current);
+        }
+      }
+    }
+    if (streamRef.current) rafRef.current = requestAnimationFrame(() => void loop());
   };
 
   const finish = (mime: string) => {
@@ -86,7 +140,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
     const mime = MIME_CANDIDATES.find((m) => MediaRecorder.isTypeSupported(m)) ?? "";
     let recorder: MediaRecorder;
     try {
-      recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      recorder = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 1_000_000 } : { videoBitsPerSecond: 1_000_000 });
     } catch {
       setErr("Your browser does not support video recording. Please try another browser.");
       return;
@@ -100,9 +154,12 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
     recorder.start();
     setRecording(true);
     setStep(0);
-    timersRef.current.push(window.setTimeout(() => setStep(1), STEP_MS));
-    timersRef.current.push(window.setTimeout(() => setStep(2), STEP_MS * 2));
-    timersRef.current.push(window.setTimeout(() => stopRecording(true), STEP_MS * 3));
+    stepRef.current = 0;
+    holdRef.current = 0;
+    timersRef.current.push(window.setTimeout(() => {
+      stopRecording(false);
+      setErr("Time ran out. Make sure your face is well lit and try again.");
+    }, MAX_MS));
   };
 
   const msg = err ?? (error && !file ? (errorMsg ?? "Please record the verification video.") : null);
@@ -163,7 +220,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
             <p className="mt-4 text-lg font-bold tracking-tight text-navy">{recording ? `Step ${step + 1} of 3` : "Identity verification video"}</p>
             <p className="mt-2 text-sm text-muted-foreground">
               {recording
-                ? (STEPS[step] ?? STEPS[0])
+                ? `${STEPS[step] ?? STEPS[0]}${faceSeen ? "" : " — we can't see your face"}`
                 : cameraOn
                   ? "Centre your face and follow the on-screen instructions."
                   : "Record a short video: centre your face, then turn your head to each side."}
@@ -172,10 +229,11 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
               <button
                 type="button"
                 onClick={cameraOn ? startRecording : startCamera}
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-navy-foreground transition hover:opacity-90"
+                disabled={cameraOn && (!ready || !faceSeen)}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-navy-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Camera className="h-4 w-4" />
-                {cameraOn ? "Start recording" : "Enable camera"}
+                {!cameraOn ? "Enable camera" : !ready ? "Loading face check…" : !faceSeen ? "Looking for your face…" : "Start verification"}
               </button>
             ) : (
               <button
