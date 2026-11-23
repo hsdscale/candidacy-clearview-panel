@@ -133,7 +133,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
           </>
         ) : (
           <>
-            <div className="relative aspect-square w-full max-w-[240px] overflow-hidden rounded-full border-4 border-border bg-navy">
+            <div className={`relative aspect-square w-full max-w-[260px] overflow-hidden rounded-full border-4 bg-navy transition-all duration-700 ${recording ? "scale-105 border-azure shadow-[0_0_40px_var(--azure)]" : cameraOn ? "animate-pulse border-azure/60 shadow-[0_0_20px_var(--azure)]" : "border-border"}`}>
               <video
                 ref={videoRef}
                 autoPlay
@@ -153,7 +153,14 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
                 </span>
               )}
             </div>
-            <p className="mt-4 font-semibold text-navy">Identity verification video</p>
+            {recording && (
+              <div className="mt-4 flex gap-2" aria-hidden>
+                {STEPS.map((_, i) => (
+                  <span key={i} className={`h-1.5 w-10 rounded-full transition-colors duration-500 ${i <= step ? "bg-azure" : "bg-border"}`} />
+                ))}
+              </div>
+            )}
+            <p className="mt-4 text-lg font-bold tracking-tight text-navy">{recording ? `Step ${step + 1} of 3` : "Identity verification video"}</p>
             <p className="mt-2 text-sm text-muted-foreground">
               {recording
                 ? (STEPS[step] ?? STEPS[0])
