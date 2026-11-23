@@ -48,6 +48,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
   const rafRef = useRef<number | null>(null);
   const stepRef = useRef(0);
   const holdRef = useRef(0);
+  const doneRef = useRef(!!file);
 
   useEffect(() => stopAll, []);
   useEffect(() => {
@@ -96,6 +97,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
         .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
         .withFaceLandmarks();
       setFaceSeen(!!det);
+      if (det && !recorderRef.current && !doneRef.current) startRecording();
       if (det && recorderRef.current) {
         const ok = STEP_OK[stepRef.current]?.(yawRatio(det.landmarks.positions));
         holdRef.current = ok ? holdRef.current + 1 : 0;
@@ -114,6 +116,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
   const finish = (mime: string) => {
     const blob = new Blob(chunksRef.current, { type: mime });
     chunksRef.current = [];
+    doneRef.current = true;
     const ext = mime.includes("mp4") ? "mp4" : "webm";
     onChange(new File([blob], `verification.${ext}`, { type: mime }));
     setRecording(false);
@@ -158,12 +161,12 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
     holdRef.current = 0;
     timersRef.current.push(window.setTimeout(() => {
       stopRecording(false);
-      setErr("Time ran out. Make sure your face is well lit and try again.");
+      // Discard the partial video; the check restarts when the face is seen again.
+      setErr("We couldn't confirm the movements in time. Make sure your face is well lit and try again.");
     }, MAX_MS));
   };
 
   const msg = err ?? (error && !file ? (errorMsg ?? "Please record the verification video.") : null);
-  const size = file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "";
 
   return (
     <div>
@@ -177,12 +180,10 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-navy/10 text-navy">
               <CheckCircle2 className="h-6 w-6" />
             </span>
-            <p className="mt-4 font-semibold text-navy">Identity verification video</p>
-            <p className="mt-2 max-w-full truncate text-sm text-muted-foreground">{file.name}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{size}</p>
+            <p className="mt-4 text-lg font-bold tracking-tight text-navy">Verification complete</p>
             <button
               type="button"
-              onClick={() => onChange(null)}
+              onClick={() => { doneRef.current = false; setErr(null); onChange(null); }}
               className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-destructive hover:underline"
             >
               <RotateCcw className="h-4 w-4" /> Record again
@@ -203,46 +204,31 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
                   <Video className="h-10 w-10 opacity-60" />
                 </span>
               )}
-              {recording && (
-                <span className="absolute left-1/2 top-3 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-navy">
-                  <span className="h-2.5 w-2.5 animate-ping rounded-full bg-destructive" />
-                  Recording…
-                </span>
-              )}
             </div>
-            {recording && (
+            {cameraOn && (
               <div className="mt-4 flex gap-2" aria-hidden>
                 {STEPS.map((_, i) => (
-                  <span key={i} className={`h-1.5 w-10 rounded-full transition-colors duration-500 ${i <= step ? "bg-azure" : "bg-border"}`} />
+                  <span key={i} className={`h-1.5 w-10 rounded-full transition-colors duration-500 ${recording && i <= step ? "bg-azure" : "bg-border"}`} />
                 ))}
               </div>
             )}
-            <p className="mt-4 text-lg font-bold tracking-tight text-navy">{recording ? `Step ${step + 1} of 3` : "Identity verification video"}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {recording
-                ? `${STEPS[step] ?? STEPS[0]}${faceSeen ? "" : " — we can't see your face"}`
-                : cameraOn
-                  ? "Centre your face and follow the on-screen instructions."
-                  : "Record a short video: centre your face, then turn your head to each side."}
+            <p className="mt-4 text-lg font-bold tracking-tight text-navy">
+              {!cameraOn ? "Identity verification" : !ready ? "Preparing…" : (STEPS[recording ? step : 0] ?? STEPS[0])}
             </p>
-            {!recording ? (
-              <button
-                type="button"
-                onClick={cameraOn ? startRecording : startCamera}
-                disabled={cameraOn && (!ready || !faceSeen)}
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-navy-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Camera className="h-4 w-4" />
-                {!cameraOn ? "Enable camera" : !ready ? "Loading face check…" : !faceSeen ? "Looking for your face…" : "Start verification"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => stopRecording(false)}
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-6 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
-              >
-                <RotateCcw className="h-4 w-4" /> Cancel and restart
-              </button>
+            {cameraOn && ready && !faceSeen && <p className="mt-2 text-sm text-muted-foreground">We can't see your face yet.</p>}
+            {!cameraOn && (
+              <>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  A short video of your face is recorded while you follow three movements, and sent with your application.
+                </p>
+                <button
+                  type="button"
+                  onClick={startCamera}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-navy-foreground transition hover:opacity-90"
+                >
+                  <Camera className="h-4 w-4" /> Enable camera
+                </button>
+              </>
             )}
           </>
         )}
