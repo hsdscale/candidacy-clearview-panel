@@ -4,6 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 import { extOf, uploadToSlot } from "@/lib/submit-application";
 import { prepareResubmitUploads } from "@/lib/upload-urls.functions";
 import { UploadBox } from "@/components/UploadBox";
+import { KycVideoCapture } from "@/components/KycVideoCapture";
 import { getResubmit, completeResubmit } from "@/lib/resubmit.functions";
 import logo from "@/assets/logo.webp";
 
@@ -87,7 +88,7 @@ function Resubmit() {
               <UploadBox title="Identity document — front" file={cv} onChange={setCv} error={tried && !cv} />
               <UploadBox title="Identity document — back" file={extra} onChange={setExtra} error={tried && !extra} />
               <UploadBox title="Proof of UK address" file={morada} onChange={setMorada} error={tried && !morada} />
-              {info.needsSelfie && <UploadBox title="Photo of your face (selfie)" file={selfie} onChange={setSelfie} error={tried && !selfie} photoOnly description="Upload a recent photo of yourself with your face clearly visible." />}
+              {info.needsSelfie && <KycVideoCapture file={selfie} onChange={setSelfie} error={tried && !selfie} errorMsg="Please record the identity verification video." />}
             </div>
             {err && <p className="mt-4 text-sm font-medium text-destructive">{err}</p>}
             <button onClick={send} disabled={sending}

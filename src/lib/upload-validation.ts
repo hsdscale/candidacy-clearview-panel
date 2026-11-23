@@ -7,3 +7,9 @@ export function uploadError(file: Pick<File, 'name' | 'size'>, photoOnly = false
   if (file.size > MAX_UPLOAD_BYTES) return 'The file exceeds the maximum size of 10 MB.';
   return null;
 }
+
+export function uploadVideoError(file: Pick<File, 'name' | 'size'>) {
+  if (!/\.(webm|mp4)$/i.test(file.name)) return 'Unsupported format. The verification video must be WEBM or MP4.';
+  if (file.size > MAX_UPLOAD_BYTES) return 'The video exceeds the maximum size of 10 MB.';
+  return null;
+}

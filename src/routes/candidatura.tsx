@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle, Mail } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
+import { KycVideoCapture } from "@/components/KycVideoCapture";
 import { submitApplication } from "@/lib/submit-application";
 import { trackPixel } from "@/lib/meta-pixel";
 import logo from "@/assets/logo.webp";
@@ -606,7 +607,7 @@ function Candidatura() {
               Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              Proof of UK address and selfie
+              Proof of UK address and identity verification
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
               Upload clear, legible documents for our verification team.
@@ -620,14 +621,11 @@ function Candidatura() {
                 error={show("morada")}
                 errorMsg="Please upload proof of your UK address."
               />
-              <UploadBox
-                title="Photo of your face (selfie)"
-                description="Upload a recent photo of yourself with your face clearly visible to help confirm your identity."
+              <KycVideoCapture
                 file={selfie}
                 onChange={setSelfie}
                 error={show("selfie")}
-                errorMsg="Please upload a photo of your face (selfie)."
-                photoOnly
+                errorMsg="Please record the identity verification video."
               />
             </div>
 

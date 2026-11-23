@@ -28,7 +28,7 @@ export function candidateFolder(app: Pick<ExportCandidate, 'application_number' 
 }
 
 export function candidateDocuments(app: ExportCandidate) {
-  return ([['01_Identity-front', app.cv_path], ['02_Identity-back', app.extra_path], ['03_Proof-of-UK-address', app.morada_path], ...(app.selfie_path ? [['04_Selfie', app.selfie_path] as const] : [])] as const).map(([label, path]) => {
+  return ([['01_Identity-front', app.cv_path], ['02_Identity-back', app.extra_path], ['03_Proof-of-UK-address', app.morada_path], ...(app.selfie_path ? [['04_Verification-video', app.selfie_path] as const] : [])] as const).map(([label, path]) => {
     const ext = path?.split('.').pop()?.toLowerCase();
     return { label, path, filename: `${label}.${ext && /^[a-z0-9]{1,8}$/.test(ext) ? ext : 'bin'}` };
   });

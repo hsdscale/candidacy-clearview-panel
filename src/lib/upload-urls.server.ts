@@ -6,7 +6,7 @@ export type UploadSlot = { label: Label; path: string; token: string };
 
 export function safeExt(ext: string) {
   const e = ext.toLowerCase();
-  return /^(pdf|docx?|jpe?g|png)$/.test(e) ? e : 'bin';
+  return /^(pdf|docx?|jpe?g|png|webm|mp4)$/.test(e) ? e : 'bin';
 }
 
 export async function signSlots(folder: string, files: { label: Label; ext: string }[], suffix = ''): Promise<UploadSlot[]> {

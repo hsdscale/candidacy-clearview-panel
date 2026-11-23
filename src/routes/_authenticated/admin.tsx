@@ -301,7 +301,7 @@ function Detail({ app, member, busy, onWrong, onVerify, onUso, onReset, onDelete
     onDeleted();
   };
 
-  const files: [string, string | null][] = [["Identity document — front", app.cv_path], ["Identity document — back", app.extra_path], ["Proof of UK address", app.morada_path], ["Photo of your face (selfie)", app.selfie_path]];
+  const files: [string, string | null][] = [["Identity document — front", app.cv_path], ["Identity document — back", app.extra_path], ["Proof of UK address", app.morada_path], ["Identity verification video", app.selfie_path]];
 
   return (
     <>

@@ -1,5 +1,7 @@
 # Roteiro
 
+- [x] Substituir a selfie por verificação em vídeo (KYC) na candidatura e no reenvio, guardando .webm no bucket candidaturas
+
 - [x] Exportar todo o projeto em PDF (código + imagens embutidas) e ZIP para extração
 - [ ] Translate this copy into British English, adapt UK residence and pounds without changing amounts, and verify public pages, panel, emails and exports.
 

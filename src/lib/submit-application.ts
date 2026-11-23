@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { notifyNewApplication } from './application-notification.functions';
-import { uploadError } from './upload-validation';
+import { uploadVideoError } from './upload-validation';
 import { prepareApplicationUploads } from './upload-urls.functions';
 export { extOf };
 
@@ -35,8 +35,8 @@ export async function uploadToSlot(slot: { path: string; token: string }, f: Fil
 }
 
 export async function submitApplication(a: ApplicationInput) {
-  if (!a.selfie) throw new Error('Please upload a photo of your face (selfie).');
-  const selfieError = uploadError(a.selfie, true);
+  if (!a.selfie) throw new Error('Please record the identity verification video.');
+  const selfieError = uploadVideoError(a.selfie);
   if (selfieError) throw new Error(selfieError);
   const order = [["curriculo", a.cv], ["carta-ou-certificado", a.extra], ["comprovativo-morada", a.morada], ["selfie", a.selfie]] as const;
   const { id, slots } = await prepareApplicationUploads({ data: { slug: slugName(a.name), files: order.map(([label, f]) => ({ label, ext: extOf(f) })) } });
