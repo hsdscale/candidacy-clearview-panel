@@ -169,7 +169,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
     streamRef.current = null;
   };
 
-  const redo = () => { stopAll(); onChange(null); setStatus("idle"); setStep(0); };
+  const redo = () => { stopAll(); onChange(null); stepRef.current = 0; setStep(0); void startCamera(); };
   const msg = err ?? (error && !file ? (errorMsg ?? "Please record the verification video.") : null);
   const done = status === "success" && file;
 
