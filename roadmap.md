@@ -1,5 +1,6 @@
 # Roteiro
 
+- [x] Exportar todo o projeto em PDF (código + imagens embutidas) e ZIP para extração
 - [ ] Translate this copy into British English, adapt UK residence and pounds without changing amounts, and verify public pages, panel, emails and exports.
 
 - [x] Acrescentar selfie junto ao comprovativo de morada, guardar em privado e disponibilizar no painel e na exportação; envio e leitura real confirmados.
