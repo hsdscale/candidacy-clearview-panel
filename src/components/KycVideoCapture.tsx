@@ -158,7 +158,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
           <div className="relative aspect-square w-full max-w-[288px] overflow-hidden rounded-full border-[6px] border-border bg-navy shadow-2xl transition-all duration-500">
             <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 h-full w-full -scale-x-100 object-cover" />
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className={`h-[83%] w-[83%] rounded-full border-4 transition-all duration-700 ${status === "recording" && isHolding ? "scale-105 border-success shadow-[0_0_30px_var(--success)]" : status === "recording" ? "border-azure shadow-[0_0_24px_var(--azure)]" : "border-navy-foreground/40"} ${status === "waiting" ? "animate-pulse" : ""}`} />
+              <div className={`h-[83%] w-[83%] rounded-full border-4 transition-all duration-700 ${status === "recording" && isHolding ? "scale-105 border-neon shadow-[0_0_25px_var(--neon),0_0_60px_var(--neon),inset_0_0_25px_var(--neon)]" : status === "recording" ? "border-azure shadow-[0_0_24px_var(--azure)]" : "border-navy-foreground/40"} ${status === "waiting" ? "animate-pulse" : ""}`} />
             </div>
             {status === "loading" && (
               <span className="absolute inset-0 flex items-center justify-center text-navy-foreground"><Loader2 className="h-8 w-8 animate-spin" /></span>
@@ -173,10 +173,11 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
         )}
 
         <div className="space-y-3">
-          <div className="flex h-8 justify-center">
+          <div className="flex min-h-24 flex-col items-center justify-center gap-1">
             {status === "recording" && isHolding && (
-              <div role="status" className="flex animate-bounce items-center gap-2 font-bold text-success">
-                <CheckCircle2 size={20} /> <span>Perfect! Hold still...</span>
+              <div role="status" className="flex animate-in zoom-in-50 fade-in flex-col items-center gap-1 duration-300">
+                <span className="flex h-14 w-14 animate-bounce items-center justify-center rounded-full bg-neon text-navy shadow-[0_0_24px_var(--neon)]"><CheckCircle2 className="h-9 w-9" strokeWidth={3} /></span>
+                <span className="text-lg font-extrabold text-success">Perfect! Hold still...</span>
               </div>
             )}
           </div>
@@ -188,6 +189,11 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
           <h3 className="text-2xl font-extrabold tracking-tight text-navy">
             {status === "recording" ? STEPS[step]?.text : done ? "Verified!" : "Identity Validation"}
           </h3>
+          {status === "recording" && (
+            <div className="mx-auto h-3 w-full max-w-[288px] overflow-hidden rounded-full bg-border" role="progressbar" aria-label="Hold progress">
+              <div key={`${step}-${isHolding}`} className="h-full rounded-full bg-neon shadow-[0_0_12px_var(--neon)]" style={isHolding ? { animation: `kyc-fill ${HOLD_MS}ms linear forwards` } : { width: 0 }} />
+            </div>
+          )}
           <p className="text-sm text-muted-foreground">
             {status === "recording" ? "Follow the instructions to prove you are real."
               : done ? "Your video has been saved and will be sent with your application."

@@ -69,6 +69,7 @@
   --color-cream: var(--cream);
   --color-azure: var(--azure);
   --color-success: var(--success);
+  --color-neon: var(--neon);
   --font-display: "Outfit", sans-serif;
   --font-sans: "Figtree", sans-serif;
 }
@@ -81,6 +82,7 @@
   --cream: oklch(0.98 0.006 85);
   --azure: oklch(0.5 0.15 255);
   --success: oklch(0.6 0.16 150);
+  --neon: oklch(0.87 0.29 145);
   --shadow-card: 0 20px 40px -20px color-mix(in oklab, var(--navy) 45%, transparent);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -164,3 +166,5 @@
     color: var(--color-foreground);
   }
 }
+
+@keyframes kyc-fill { from { width: 0%; } to { width: 100%; } }
