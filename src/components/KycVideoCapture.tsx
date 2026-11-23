@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, RotateCcw, CheckCircle2, AlertCircle, Video } from "lucide-react";
 
-const HOLD_FRAMES = 6;
+const HOLD_MS = 3000;
 const MAX_MS = 45000;
 // Nose position between the jaw edges on the raw (unmirrored) camera image: 0 = image left, 1 = image right.
 function yawRatio(pts: { x: number }[]) {
@@ -44,6 +44,7 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
   const [err, setErr] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [faceSeen, setFaceSeen] = useState(false);
+  const [holding, setHolding] = useState(false);
   const faceapiRef = useRef<typeof import("face-api.js") | null>(null);
   const rafRef = useRef<number | null>(null);
   const stepRef = useRef(0);
@@ -98,11 +99,16 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
         .withFaceLandmarks();
       setFaceSeen(!!det);
       if (det && !recorderRef.current && !doneRef.current) startRecording();
+      if (!det) { holdRef.current = 0; setHolding(false); }
       if (det && recorderRef.current) {
         const ok = STEP_OK[stepRef.current]?.(yawRatio(det.landmarks.positions));
-        holdRef.current = ok ? holdRef.current + 1 : 0;
-        if (holdRef.current >= HOLD_FRAMES) {
+        const now = performance.now();
+        if (!ok) holdRef.current = 0;
+        else if (!holdRef.current) holdRef.current = now;
+        setHolding(!!ok);
+        if (ok && now - holdRef.current >= HOLD_MS) {
           holdRef.current = 0;
+          setHolding(false);
           stepRef.current += 1;
           if (stepRef.current >= STEPS.length) {
             stopRecording(true);
@@ -215,6 +221,11 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
             <p className="mt-4 text-lg font-bold tracking-tight text-navy">
               {!cameraOn ? "Identity verification" : !ready ? "Preparing…" : (STEPS[recording ? step : 0] ?? STEPS[0])}
             </p>
+            {recording && holding && (
+              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success" role="status">
+                <CheckCircle2 className="h-4 w-4" /> Perfect! Hold still…
+              </p>
+            )}
             {cameraOn && ready && !faceSeen && <p className="mt-2 text-sm text-muted-foreground">We can't see your face yet.</p>}
             {!cameraOn && (
               <>
