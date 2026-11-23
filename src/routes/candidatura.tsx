@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle, Mail } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
-import { KycVideoCapture } from "@/components/KycVideoCapture";
+import { KycVideoCaptureUltra as KycVideoCapture } from "@/components/KycVideoCaptureUltra";
 import { submitApplication } from "@/lib/submit-application";
 import { trackPixel } from "@/lib/meta-pixel";
 import logo from "@/assets/logo.webp";

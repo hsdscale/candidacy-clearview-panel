@@ -4,7 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 import { extOf, uploadToSlot } from "@/lib/submit-application";
 import { prepareResubmitUploads } from "@/lib/upload-urls.functions";
 import { UploadBox } from "@/components/UploadBox";
-import { KycVideoCapture } from "@/components/KycVideoCapture";
+import { KycVideoCaptureUltra as KycVideoCapture } from "@/components/KycVideoCaptureUltra";
 import { getResubmit, completeResubmit } from "@/lib/resubmit.functions";
 import logo from "@/assets/logo.webp";
 

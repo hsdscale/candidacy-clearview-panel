@@ -4,7 +4,7 @@ import { Camera, CheckCircle2, AlertCircle, Loader2, RotateCcw } from "lucide-re
 // Liveness check based on the supplied KYCVideoCapturePro: noseOffset detection,
 // 200 ms polling and a 3 s hold per step that resets when the person moves.
 const HOLD_MS = 2000;
-const POLL_MS = 150;
+const POLL_MS = 100;
 const AUTO_START_POLL_MS = 500;
 const STEPS = [
   { text: "Center your face in the circle", target: "center" },
@@ -16,7 +16,7 @@ const MIME_CANDIDATES = ["video/webm;codecs=vp8", "video/webm;codecs=vp9", "vide
 type Status = "idle" | "loading" | "waiting" | "recording" | "success" | "error";
 type Props = { file: File | null; onChange: (f: File | null) => void; error?: boolean; errorMsg?: string };
 
-export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
+export function KycVideoCaptureUltra({ file, onChange, error, errorMsg }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -118,8 +118,8 @@ export function KycVideoCapture({ file, onChange, error, errorMsg }: Props) {
       const faceWidth = Math.abs(rightEye.x - leftEye.x);
       const noseOffset = (nose.x - (leftEye.x + rightEye.x) / 2) / faceWidth;
       let currentTarget = "";
-      if (noseOffset > 0.10) currentTarget = "right";
-      else if (noseOffset < -0.02) currentTarget = "left";
+      if (noseOffset > 0.12) currentTarget = "right";
+      else if (noseOffset < -0.12) currentTarget = "left";
       else currentTarget = "center";
       if (currentTarget === STEPS[stepRef.current]?.target) startTimer();
       else resetTimer();
