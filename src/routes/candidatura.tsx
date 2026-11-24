@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, AlertCircle, Mail } from "lucide-react";
 import { UploadBox } from "@/components/UploadBox";
-import { KycVideoCaptureUltra as KycVideoCapture } from "@/components/KycVideoCaptureUltra";
+import { KycUnifiedStep4 } from "@/components/KycUnifiedStep4";
 import { submitApplication } from "@/lib/submit-application";
 import { trackPixel } from "@/lib/meta-pixel";
 import logo from "@/assets/logo.webp";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/candidatura")({
   component: Candidatura,
 });
 
-const TOTAL = 6;
+const TOTAL = 5;
 const HOURS: [string, string][] = [
   ["2–4 hours", "£3,467–5,280/month"],
   ["4–6 hours", "£5,200–7,920/month"],
@@ -156,9 +156,8 @@ function Candidatura() {
     1: ["hours", "days", "start", "equip"],
     2: ["exp", "pt", "strengths", "why"],
     3: ["name", "email", "agree"],
-    4: ["cv", "extra"],
+    4: ["cv", "extra", "selfie"],
     5: ["morada"],
-    6: ["selfie"],
   };
   const show = (k: keyof typeof errs) => tried && errs[k];
   const level =
@@ -544,17 +543,12 @@ function Candidatura() {
               Identity verification
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-              Upload clear, legible documents for our verification team.
+              Capture your UK ID and complete a quick face check.
             </p>
 
-            <div className="mt-10 grid gap-5 md:grid-cols-2">
-              <UploadBox title="Identity document — front" file={cv} onChange={setCv} error={show("cv")} />
-              <UploadBox
-                title="Identity document — back"
-                file={extra}
-                onChange={setExtra}
-                error={show("extra")}
-              />
+            <div className="mx-auto mt-10 max-w-xl">
+              <KycUnifiedStep4 front={cv} back={extra} video={selfie} onFront={setCv} onBack={setExtra} onVideo={setSelfie}
+                error={show("cv") || show("extra") || show("selfie")} />
             </div>
 
             <div className="mt-10 flex flex-col-reverse gap-3 border-t border-border pt-8 sm:flex-row sm:justify-between">
@@ -608,14 +602,13 @@ function Candidatura() {
               Order Processing Assistant
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl md:text-5xl">
-              {step === 5 ? "Proof of UK address" : "Identity verification"}
+              Proof of UK address
             </h1>
             <p className="mt-3 text-sm text-muted-foreground sm:text-base">
               Upload clear, legible documents for our verification team.
             </p>
 
             <div className="mx-auto mt-10 max-w-xl">
-              {step === 5 ? (
               <UploadBox
                 title="Proof of UK address"
                 file={morada}
@@ -623,14 +616,6 @@ function Candidatura() {
                 error={show("morada")}
                 errorMsg="Please upload proof of your UK address."
               />
-              ) : (
-              <KycVideoCapture
-                file={selfie}
-                onChange={setSelfie}
-                error={show("selfie")}
-                errorMsg="Please record the identity verification video."
-              />
-              )}
             </div>
 
             <div className="mt-6 flex items-start gap-3 rounded-lg bg-navy/5 px-5 py-4 text-sm text-navy/80">
@@ -659,8 +644,6 @@ function Candidatura() {
               >
                 {sending ? (
                   "Sending..."
-                ) : step === 5 ? (
-                  <>Continue <ArrowRight className="h-4 w-4" /></>
                 ) : (
                   <>
                     Submit application <Check className="h-4 w-4" />
